@@ -31,3 +31,4 @@ compose.yaml
 compose.override.yaml
 Dockerfile
 /nginx/
+/docker/
