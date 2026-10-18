@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Jobs\OcrDocumentJob;
 use App\Models\Archive;
+use App\Notifications\AktivitasNotifikasi;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -103,6 +104,14 @@ class ArchiveController extends Controller
                 'ocr_status'        => $ocrSupported ? 'pending' : 'skipped',
             ]);
 
+            // Beri tahu user yang berhak melihat semua arsip (pengunggah otomatis dikecualikan).
+            AktivitasNotifikasi::kirim(
+                AktivitasNotifikasi::penggunaDenganIzin('view all archives'),
+                'Arsip baru diunggah',
+                "{$request->user()->name} mengunggah arsip \"{$archive->title}\".",
+                route('archives.show', $archive, false),
+            );
+
             // Dispatch setelah file tersimpan dan record dibuat.
             if ($ocrSupported) {
                 OcrDocumentJob::dispatch($archive->id, $path);
@@ -194,6 +203,14 @@ class ArchiveController extends Controller
 
             $archive->update($validated);
 
+            // Beri tahu pemilik arsip (kalau yang mengubah orang lain).
+            AktivitasNotifikasi::kirim(
+                $archive->user,
+                'Arsip diperbarui',
+                "Arsip \"{$archive->title}\" diperbarui oleh {$request->user()->name}.",
+                route('archives.show', $archive, false),
+            );
+
             if ($ocrSupported) {
                 OcrDocumentJob::dispatch($archive->id, $archive->file_path);
             }
@@ -214,11 +231,22 @@ class ArchiveController extends Controller
     /**
      * Remove the specified archive.
      */
-    public function destroy(Archive $archive): RedirectResponse
+    public function destroy(Request $request, Archive $archive): RedirectResponse
     {
         try {
+            // Ambil dulu sebelum dihapus, karena setelahnya datanya hilang.
+            $judul   = $archive->title;
+            $pemilik = $archive->user;
+
             Storage::disk('public')->delete($archive->file_path);
             $archive->delete();
+
+            // Tanpa URL, karena arsipnya sudah tidak ada.
+            AktivitasNotifikasi::kirim(
+                $pemilik,
+                'Arsip dihapus',
+                "Arsip \"{$judul}\" dihapus oleh {$request->user()->name}.",
+            );
 
             return redirect()->route('archives.index')
                 ->with('success', 'Arsip berhasil dihapus.');

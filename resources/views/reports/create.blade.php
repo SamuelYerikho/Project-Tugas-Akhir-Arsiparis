@@ -3,89 +3,95 @@
 @section('pageTitle', 'Buat Laporan')
 
 @section('content')
-    <div class="max-w-2xl mx-auto flex flex-col gap-6">
+@php
+    $input = 'w-full px-3.5 py-3 bg-white border rounded text-sm text-ink outline-none focus:ring-2 focus:ring-manila focus:border-ink transition-colors';
+    $label = 'block text-sm font-semibold mb-1.5';
+    $choice = 'flex items-center gap-3 bg-white border border-line rounded px-4 py-4 cursor-pointer transition-colors hover:border-ink has-[:checked]:border-ink has-[:checked]:bg-manila/20';
+@endphp
 
-        <div>
-            <h1 class="text-2xl font-bold text-slate-800">Buat Laporan Baru</h1>
-            <p class="text-sm text-slate-500 mt-1">Tentukan jenis, periode, dan format laporan arsip yang ingin dibuat.</p>
+    <div class="max-w-2xl">
+
+        <div class="mb-8">
+            <a href="{{ route('reports.index') }}"
+                class="inline-flex items-center gap-2 text-sm font-semibold text-steel hover:text-ink mb-4">
+                <i class="fa-solid fa-arrow-left text-xs"></i>
+                Kembali ke daftar laporan
+            </a>
+            <h2 class="font-display font-extrabold text-3xl tracking-tight">Buat laporan baru</h2>
+            <p class="text-sm text-steel mt-2 max-w-lg">Tentukan jenis, rentang tanggal, dan format file laporan arsip yang ingin dibuat.</p>
         </div>
 
-        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-            <form action="{{ route('reports.store') }}" method="POST" class="flex flex-col gap-5">
-                @csrf
+        <form action="{{ route('reports.store') }}" method="POST"
+            class="bg-white border border-line border-t-4 border-t-manila rounded p-6 sm:p-8 space-y-6">
+            @csrf
 
-                <div>
-                    <label for="report_type" class="block text-sm font-medium text-slate-700 mb-1.5">Jenis Laporan</label>
-                    <input type="text" name="report_type" id="report_type" value="{{ old('report_type') }}"
-                        placeholder="Contoh: Laporan Arsip Bulanan"
-                        class="w-full px-3.5 py-2.5 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-aris-500 focus:border-aris-500 @error('report_type') border-red-400 @enderror">
-                    @error('report_type')
-                        <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
+            <div>
+                <label for="report_type" class="{{ $label }}">Jenis laporan</label>
+                <input type="text" name="report_type" id="report_type" value="{{ old('report_type') }}"
+                    placeholder="Contoh: Laporan Arsip Bulanan"
+                    class="{{ $input }} @error('report_type') border-red-600 @else border-line @enderror">
+                @error('report_type')
+                    <p class="text-xs text-red-700 mt-1.5">{{ $message }}</p>
+                @enderror
+            </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div>
-                        <label for="period_start" class="block text-sm font-medium text-slate-700 mb-1.5">Periode Mulai</label>
+                        <label for="period_start" class="{{ $label }}">Dari tanggal</label>
                         <input type="date" name="period_start" id="period_start" value="{{ old('period_start') }}"
-                            class="w-full px-3.5 py-2.5 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-aris-500 focus:border-aris-500 @error('period_start') border-red-400 @enderror">
+                            class="{{ $input }} @error('period_start') border-red-600 @else border-line @enderror">
                         @error('period_start')
-                            <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
+                            <p class="text-xs text-red-700 mt-1.5">{{ $message }}</p>
                         @enderror
                     </div>
 
                     <div>
-                        <label for="period_end" class="block text-sm font-medium text-slate-700 mb-1.5">Periode Akhir</label>
+                        <label for="period_end" class="{{ $label }}">Sampai tanggal</label>
                         <input type="date" name="period_end" id="period_end" value="{{ old('period_end') }}"
-                            class="w-full px-3.5 py-2.5 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-aris-500 focus:border-aris-500 @error('period_end') border-red-400 @enderror">
+                            class="{{ $input }} @error('period_end') border-red-600 @else border-line @enderror">
                         @error('period_end')
-                            <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
+                            <p class="text-xs text-red-700 mt-1.5">{{ $message }}</p>
                         @enderror
                     </div>
                 </div>
-                <p class="text-xs text-slate-400 -mt-3">Kosongkan periode untuk mencakup seluruh arsip.</p>
+                <p class="text-xs text-steel mt-2">Kosongkan kedua tanggal untuk mencakup seluruh arsip.</p>
+            </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-2">Format Laporan</label>
-                    <div class="grid grid-cols-2 gap-3">
-                        <label
-                            class="flex items-center gap-3 border border-slate-200 rounded-lg px-4 py-3 cursor-pointer transition has-[:checked]:border-aris-500 has-[:checked]:bg-aris-50">
-                            <input type="radio" name="format" value="excel"
-                                class="text-aris-600 focus:ring-aris-500"
-                                {{ old('format', 'excel') === 'excel' ? 'checked' : '' }}>
-                            <div class="flex items-center gap-2">
-                                <i class="fa-solid fa-file-excel text-emerald-600"></i>
-                                <span class="text-sm font-medium text-slate-700">Excel</span>
-                            </div>
-                        </label>
+            <fieldset>
+                <legend class="{{ $label }}">Format file</legend>
+                <div class="grid grid-cols-2 gap-3">
+                    <label class="{{ $choice }}">
+                        <input type="radio" name="format" value="excel" class="w-4 h-4 accent-ink"
+                            {{ old('format', 'excel') === 'excel' ? 'checked' : '' }}>
+                        <span class="flex items-center gap-2 text-sm font-semibold">
+                            <i class="fa-solid fa-file-excel text-emerald-700"></i> Excel
+                        </span>
+                    </label>
 
-                        <label
-                            class="flex items-center gap-3 border border-slate-200 rounded-lg px-4 py-3 cursor-pointer transition has-[:checked]:border-aris-500 has-[:checked]:bg-aris-50">
-                            <input type="radio" name="format" value="pdf"
-                                class="text-aris-600 focus:ring-aris-500"
-                                {{ old('format') === 'pdf' ? 'checked' : '' }}>
-                            <div class="flex items-center gap-2">
-                                <i class="fa-solid fa-file-pdf text-red-600"></i>
-                                <span class="text-sm font-medium text-slate-700">PDF</span>
-                            </div>
-                        </label>
-                    </div>
-                    @error('format')
-                        <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
-                    @enderror
+                    <label class="{{ $choice }}">
+                        <input type="radio" name="format" value="pdf" class="w-4 h-4 accent-ink"
+                            {{ old('format') === 'pdf' ? 'checked' : '' }}>
+                        <span class="flex items-center gap-2 text-sm font-semibold">
+                            <i class="fa-solid fa-file-pdf text-red-700"></i> PDF
+                        </span>
+                    </label>
                 </div>
+                @error('format')
+                    <p class="text-xs text-red-700 mt-1.5">{{ $message }}</p>
+                @enderror
+            </fieldset>
 
-                <div class="flex items-center justify-end gap-3 pt-2">
-                    <a href="{{ route('reports.index') }}"
-                        class="px-4 py-2.5 text-sm font-medium text-slate-600 hover:text-slate-800 transition">
-                        Batal
-                    </a>
-                    <button type="submit"
-                        class="bg-aris-600 hover:bg-aris-700 text-white text-sm font-medium px-5 py-2.5 rounded-lg transition">
-                        Buat Laporan
-                    </button>
-                </div>
-            </form>
-        </div>
+            <div class="flex items-center justify-end gap-5 pt-4 border-t border-line">
+                <a href="{{ route('reports.index') }}"
+                    class="text-sm font-semibold text-steel underline underline-offset-4 decoration-line hover:text-ink hover:decoration-ink">
+                    Batal
+                </a>
+                <button type="submit"
+                    class="px-6 py-3 bg-manila text-ink text-sm font-semibold rounded hover:brightness-95 transition">
+                    Buat laporan
+                </button>
+            </div>
+        </form>
     </div>
 @endsection

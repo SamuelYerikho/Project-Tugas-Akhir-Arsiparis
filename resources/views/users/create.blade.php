@@ -3,73 +3,78 @@
 @section('pageTitle', 'Tambah Pengguna')
 
 @section('content')
-    <div class="max-w-3xl mx-auto">
-        <div class="mb-6">
+@php
+    $input = 'w-full px-3.5 py-3 bg-white border rounded text-sm text-ink outline-none focus:ring-2 focus:ring-manila focus:border-ink transition-colors';
+    $label = 'block text-sm font-semibold mb-1.5';
+@endphp
+
+    <div class="max-w-3xl">
+
+        <div class="mb-8">
             <a href="{{ route('users.index') }}"
-                class="inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-slate-700 mb-2">
+                class="inline-flex items-center gap-2 text-sm font-semibold text-steel hover:text-ink mb-4">
                 <i class="fas fa-arrow-left text-xs"></i>
-                Kembali ke Data Pengguna
+                Kembali ke daftar pengguna
             </a>
-            <h1 class="text-xl font-bold text-slate-900">Tambah Pengguna</h1>
-            <p class="text-sm text-slate-500 mt-1">Buat akun pengguna baru beserta role-nya.</p>
+            <h2 class="font-display font-extrabold text-3xl tracking-tight">Tambah pengguna</h2>
+            <p class="text-sm text-steel mt-2">Buat akun baru dan tentukan perannya.</p>
         </div>
 
         <form action="{{ route('users.store') }}" method="POST"
-            class="bg-white border border-slate-200 rounded-xl p-6 space-y-5">
+            class="bg-white border border-line border-t-4 border-t-manila rounded p-6 sm:p-8 space-y-6">
             @csrf
 
             <div>
-                <label for="name" class="block text-sm font-semibold text-slate-700 mb-1.5">Nama Lengkap</label>
+                <label for="name" class="{{ $label }}">Nama lengkap</label>
                 <input type="text" name="name" id="name" value="{{ old('name') }}"
-                    class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-aris-500 @error('name') border-red-300 @enderror">
+                    class="{{ $input }} @error('name') border-red-600 @else border-line @enderror">
                 @error('name')
-                    <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+                    <p class="text-xs text-red-700 mt-1.5">{{ $message }}</p>
                 @enderror
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div>
-                    <label for="username" class="block text-sm font-semibold text-slate-700 mb-1.5">Username</label>
+                    <label for="username" class="{{ $label }}">Username</label>
                     <input type="text" name="username" id="username" value="{{ old('username') }}"
-                        class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-aris-500 @error('username') border-red-300 @enderror">
+                        class="{{ $input }} @error('username') border-red-600 @else border-line @enderror">
                     @error('username')
-                        <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+                        <p class="text-xs text-red-700 mt-1.5">{{ $message }}</p>
                     @enderror
                 </div>
 
                 <div>
-                    <label for="email" class="block text-sm font-semibold text-slate-700 mb-1.5">Email</label>
+                    <label for="email" class="{{ $label }}">Email</label>
                     <input type="email" name="email" id="email" value="{{ old('email') }}"
-                        class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-aris-500 @error('email') border-red-300 @enderror">
+                        class="{{ $input }} @error('email') border-red-600 @else border-line @enderror">
                     @error('email')
-                        <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+                        <p class="text-xs text-red-700 mt-1.5">{{ $message }}</p>
                     @enderror
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div>
-                    <label for="password" class="block text-sm font-semibold text-slate-700 mb-1.5">Password</label>
+                    <label for="password" class="{{ $label }}">Kata sandi</label>
                     <input type="password" name="password" id="password"
-                        class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-aris-500 @error('password') border-red-300 @enderror">
+                        class="{{ $input }} @error('password') border-red-600 @else border-line @enderror">
                     @error('password')
-                        <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+                        <p class="text-xs text-red-700 mt-1.5">{{ $message }}</p>
                     @enderror
                 </div>
 
                 <div>
-                    <label for="password_confirmation" class="block text-sm font-semibold text-slate-700 mb-1.5">Konfirmasi
-                        Password</label>
+                    <label for="password_confirmation" class="{{ $label }}">Ulangi kata sandi</label>
                     <input type="password" name="password_confirmation" id="password_confirmation"
-                        class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-aris-500">
+                        class="{{ $input }} border-line">
                 </div>
             </div>
 
             <div>
-                <label for="role" class="block text-sm font-semibold text-slate-700 mb-1.5">Role</label>
+                <label for="role" class="{{ $label }}">Peran</label>
                 <select name="role" id="role"
-                    class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-aris-500 @error('role') border-red-300 @enderror">
-                    <option value="">Pilih role</option>
+                    class="{{ $input }} @error('role') border-red-600 @else border-line @enderror">
+                    <option value="">Pilih peran</option>
                     @foreach ($roles as $role)
                         <option value="{{ $role->name }}" {{ old('role') === $role->name ? 'selected' : '' }}>
                             {{ $role->name }}
@@ -77,18 +82,18 @@
                     @endforeach
                 </select>
                 @error('role')
-                    <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+                    <p class="text-xs text-red-700 mt-1.5">{{ $message }}</p>
                 @enderror
             </div>
 
-            <div class="flex items-center justify-end gap-3 pt-2">
+            <div class="flex items-center justify-end gap-5 pt-4 border-t border-line">
                 <a href="{{ route('users.index') }}"
-                    class="px-4 py-2.5 text-sm font-semibold text-slate-600 hover:text-slate-900">
+                    class="text-sm font-semibold text-steel underline underline-offset-4 decoration-line hover:text-ink hover:decoration-ink">
                     Batal
                 </a>
                 <button type="submit"
-                    class="px-5 py-2.5 bg-aris-600 text-white text-sm font-semibold rounded-xl hover:bg-aris-700 transition-colors">
-                    Simpan Pengguna
+                    class="px-6 py-3 bg-manila text-ink text-sm font-semibold rounded hover:brightness-95 transition">
+                    Simpan pengguna
                 </button>
             </div>
         </form>

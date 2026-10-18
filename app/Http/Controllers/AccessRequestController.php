@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\AccessRequest;
 use App\Models\Archive;
+use App\Notifications\AktivitasNotifikasi;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -85,6 +86,14 @@ class AccessRequestController extends Controller
                 'status'     => 'pending',
             ]);
 
+            // Beri tahu semua yang berhak menyetujui.
+            AktivitasNotifikasi::kirim(
+                AktivitasNotifikasi::penggunaDenganIzin('approve archive access'),
+                'Permintaan akses baru',
+                "{$request->user()->name} meminta akses ke arsip \"{$archive->title}\".",
+                route('access-requests.index', [], false),
+            );
+
             return $isDirectRequest
                 ? redirect()->back()
                     ->with('success', 'Permintaan izin akses berhasil diajukan. Menunggu persetujuan admin.')
@@ -138,6 +147,13 @@ class AccessRequestController extends Controller
                 'reviewed_at' => now(),
             ]);
 
+            AktivitasNotifikasi::kirim(
+                $accessRequest->user,
+                'Permintaan akses disetujui',
+                "Kamu sekarang bisa mengakses arsip \"{$accessRequest->archive->title}\".",
+                route('archives.show', $accessRequest->archive_id, false),
+            );
+
             return redirect()->route('access-requests.index')
                 ->with('success', 'Permintaan akses berhasil disetujui.');
         } catch (ValidationException $e) {
@@ -171,6 +187,13 @@ class AccessRequestController extends Controller
                 'review_note' => $validated['review_note'] ?? null,
                 'reviewed_at' => now(),
             ]);
+
+            AktivitasNotifikasi::kirim(
+                $accessRequest->user,
+                'Permintaan akses ditolak',
+                "Permintaan akses ke arsip \"{$accessRequest->archive->title}\" ditolak.",
+                route('access-requests.show', $accessRequest, false),
+            );
 
             return redirect()->route('access-requests.index')
                 ->with('success', 'Permintaan akses ditolak.');

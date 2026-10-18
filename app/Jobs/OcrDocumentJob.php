@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Models\Archive;
+use App\Notifications\AktivitasNotifikasi;
 use App\Services\OcrService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -61,7 +62,7 @@ class OcrDocumentJob implements ShouldQueue
         }
 
         // Pastikan file belum diganti selama OCR berjalan
-        $fresh = Archive::find($this->archiveId);
+        $fresh = Archive::with('user')->find($this->archiveId);
         if (! $fresh || $fresh->file_path !== $this->filePath) {
             return;
         }
@@ -74,14 +75,35 @@ class OcrDocumentJob implements ShouldQueue
             'ocr_error'   => null,
             'ocr_at'      => now(),
         ]);
+
+        // Di dalam job tidak ada user yang login, jadi pemilik arsip pasti menerima ini.
+        AktivitasNotifikasi::kirim(
+            $fresh->user,
+            'OCR selesai',
+            "Dokumen \"{$fresh->title}\" selesai diproses dan teksnya sudah bisa dicari.",
+            route('archives.show', $fresh, false),
+        );
     }
 
     /**
      * Dipanggil Laravel setelah semua percobaan habis (atau fail() dipanggil).
+     * Notifikasi gagal ditaruh di sini (bukan di markFailed) supaya tidak dobel,
+     * karena markFailed() dan fail() sering dipanggil bersamaan.
      */
     public function failed(?Throwable $e): void
     {
         $this->markFailed($e?->getMessage() ?? 'Job OCR gagal.');
+
+        $archive = Archive::with('user')->find($this->archiveId);
+
+        if ($archive && $archive->file_path === $this->filePath) {
+            AktivitasNotifikasi::kirim(
+                $archive->user,
+                'OCR gagal',
+                "Dokumen \"{$archive->title}\" gagal diproses. Kamu bisa mencoba lagi dari halaman arsip.",
+                route('archives.show', $archive, false),
+            );
+        }
     }
 
     private function markFailed(string $message): void

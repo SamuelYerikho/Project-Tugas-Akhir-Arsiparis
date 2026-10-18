@@ -1,86 +1,85 @@
 @extends('layouts.app')
 
-@section('pageTitle', 'Permintaan Izin Akses')
+@section('pageTitle', 'Izin Akses')
 
 @section('content')
-    <div class="max-w-6xl mx-auto flex flex-col gap-6">
+    <div class="max-w-6xl">
 
-        <div class="flex items-center justify-between">
+        <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
             <div>
-                <h1 class="text-2xl font-bold text-slate-800">Permintaan Izin Akses Arsip</h1>
-                <p class="text-sm text-slate-500 mt-1">Kelola permintaan izin akses arsip dari staff.</p>
+                <h2 class="font-display font-extrabold text-3xl tracking-tight">Izin akses arsip</h2>
+                <p class="text-sm text-steel mt-2 max-w-md">Tinjau dan kelola permintaan izin akses arsip dari staf.</p>
             </div>
             @can('request archive access')
                 <a href="{{ route('access-requests.create') }}"
-                    class="inline-flex items-center gap-2 bg-aris-600 hover:bg-aris-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition">
-                    <i class="fa-solid fa-plus"></i>
-                    Tambah Permintaan
+                    class="inline-flex items-center justify-center gap-2 px-5 py-3 bg-manila text-ink text-sm font-semibold rounded hover:brightness-95 transition">
+                    <i class="fa-solid fa-plus text-xs"></i>
+                    Ajukan izin akses
                 </a>
             @endcan
         </div>
 
-        {{-- Filter Status --}}
-        <div class="flex items-center gap-2">
+        {{-- Filter status: tab bergaris bawah, tab aktif ditandai manila --}}
+        <div class="flex flex-wrap gap-x-7 gap-y-1 border-b border-line mb-6">
             @foreach (['' => 'Semua', 'pending' => 'Menunggu', 'approved' => 'Disetujui', 'rejected' => 'Ditolak'] as $value => $label)
                 <a href="{{ route('access-requests.index', array_filter(['status' => $value])) }}"
-                    class="text-sm font-medium px-3.5 py-1.5 rounded-lg transition
+                    class="-mb-px pb-3 text-sm border-b-4 transition-colors
                           {{ request('status', '') === $value
-                              ? 'bg-aris-600 text-white'
-                              : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50' }}">
+                              ? 'border-manila text-ink font-bold'
+                              : 'border-transparent text-steel font-medium hover:text-ink' }}">
                     {{ $label }}
                 </a>
             @endforeach
         </div>
 
-        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-            <table class="w-full text-sm">
-                <thead>
-                    <tr class="bg-slate-50 border-b border-slate-200 text-left text-xs font-semibold uppercase tracking-wide text-slate-400">
-                        <th class="px-6 py-3">Arsip</th>
-                        <th class="px-6 py-3">Diajukan Oleh</th>
-                        <th class="px-6 py-3">Status</th>
-                        <th class="px-6 py-3">Tanggal Diajukan</th>
-                        <th class="px-6 py-3 text-right">Aksi</th>
+        <div class="bg-white border border-line rounded border-t-2 border-t-ink overflow-x-auto">
+            <table class="w-full text-sm min-w-[48rem]">
+                <thead class="text-steel text-left">
+                    <tr class="border-b border-line">
+                        <th class="px-5 py-4 font-semibold">Arsip</th>
+                        <th class="px-5 py-4 font-semibold">Diajukan oleh</th>
+                        <th class="px-5 py-4 font-semibold">Status</th>
+                        <th class="px-5 py-4 font-semibold">Tanggal diajukan</th>
+                        <th class="px-5 py-4 font-semibold text-right">Aksi</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100">
+                <tbody class="divide-y divide-line">
                     @forelse ($accessRequests as $accessRequest)
-                        <tr class="hover:bg-slate-50/60 transition">
-                            <td class="px-6 py-4">
+                        @php
+                            $statusClass = match ($accessRequest->status) {
+                                'approved' => 'bg-emerald-100 text-emerald-800',
+                                'rejected' => 'bg-red-100 text-red-800',
+                                default => 'bg-manila/40 text-ink',
+                            };
+                            $statusLabel = match ($accessRequest->status) {
+                                'approved' => 'Disetujui',
+                                'rejected' => 'Ditolak',
+                                default => 'Menunggu',
+                            };
+                        @endphp
+                        <tr class="hover:bg-paper/70">
+                            <td class="px-5 py-4">
                                 <a href="{{ route('archives.show', $accessRequest->archive) }}"
-                                    class="font-medium text-aris-700 hover:underline">
+                                    class="font-semibold underline underline-offset-4 decoration-line hover:decoration-ink">
                                     {{ $accessRequest->archive->title ?? '-' }}
                                 </a>
                             </td>
-                            <td class="px-6 py-4 text-slate-700">
+                            <td class="px-5 py-4 text-steel">
                                 {{ $accessRequest->user->name ?? '-' }}
                             </td>
-                            <td class="px-6 py-4">
-                                @php
-                                    $statusColor = match ($accessRequest->status) {
-                                        'approved' => 'bg-emerald-50 text-emerald-600',
-                                        'rejected' => 'bg-red-50 text-red-600',
-                                        default => 'bg-amber-50 text-amber-600',
-                                    };
-                                    $statusLabel = match ($accessRequest->status) {
-                                        'approved' => 'Disetujui',
-                                        'rejected' => 'Ditolak',
-                                        default => 'Menunggu',
-                                    };
-                                @endphp
-                                <span class="inline-block text-xs font-medium px-2.5 py-1 rounded-full {{ $statusColor }}">
+                            <td class="px-5 py-4">
+                                <span class="inline-block text-xs font-semibold px-2.5 py-1 rounded-sm {{ $statusClass }}">
                                     {{ $statusLabel }}
                                 </span>
                             </td>
-                            <td class="px-6 py-4 text-slate-500">
+                            <td class="px-5 py-4 text-steel whitespace-nowrap">
                                 {{ $accessRequest->created_at->format('d M Y, H:i') }}
                             </td>
-                            <td class="px-6 py-4">
-                                <div class="flex items-center justify-end gap-2">
+                            <td class="px-5 py-4">
+                                <div class="flex items-center justify-end gap-4 whitespace-nowrap">
                                     <a href="{{ route('access-requests.show', $accessRequest) }}"
-                                        title="Lihat Detail"
-                                        class="inline-flex items-center justify-center w-8 h-8 bg-slate-50 hover:bg-slate-100 text-slate-500 rounded-lg transition">
-                                        <i class="fa-solid fa-eye"></i>
+                                        class="text-ink font-semibold underline underline-offset-4 decoration-manila decoration-2 hover:decoration-ink">
+                                        Detail
                                     </a>
                                     @if ($accessRequest->status === 'pending')
                                         @can('approve archive access')
@@ -88,9 +87,9 @@
                                                 onsubmit="return confirm('Setujui permintaan akses ini?')">
                                                 @csrf
                                                 @method('PUT')
-                                                <button type="submit" title="Setujui"
-                                                    class="inline-flex items-center justify-center w-8 h-8 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 rounded-lg transition">
-                                                    <i class="fa-solid fa-check"></i>
+                                                <button type="submit"
+                                                    class="text-emerald-800 font-semibold underline underline-offset-4 decoration-emerald-200 hover:decoration-emerald-800">
+                                                    Setujui
                                                 </button>
                                             </form>
                                         @endcan
@@ -99,9 +98,9 @@
                                                 onsubmit="return confirm('Tolak permintaan akses ini?')">
                                                 @csrf
                                                 @method('PUT')
-                                                <button type="submit" title="Tolak"
-                                                    class="inline-flex items-center justify-center w-8 h-8 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition">
-                                                    <i class="fa-solid fa-xmark"></i>
+                                                <button type="submit"
+                                                    class="text-red-700 font-semibold underline underline-offset-4 decoration-red-200 hover:decoration-red-700">
+                                                    Tolak
                                                 </button>
                                             </form>
                                         @endcan
@@ -111,9 +110,9 @@
                                             onsubmit="return confirm('Hapus permintaan akses ini secara permanen?')">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" title="Hapus"
-                                                class="inline-flex items-center justify-center w-8 h-8 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition">
-                                                <i class="fa-solid fa-trash"></i>
+                                            <button type="submit"
+                                                class="text-steel font-semibold underline underline-offset-4 decoration-line hover:text-red-700 hover:decoration-red-700">
+                                                Hapus
                                             </button>
                                         </form>
                                     @endcan
@@ -122,7 +121,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="px-6 py-10 text-center text-slate-400 text-sm">
+                            <td colspan="5" class="px-5 py-12 text-center text-steel">
                                 Belum ada permintaan izin akses.
                             </td>
                         </tr>
@@ -132,7 +131,7 @@
         </div>
 
         @if ($accessRequests->hasPages())
-            <div>
+            <div class="mt-6">
                 {{ $accessRequests->links() }}
             </div>
         @endif

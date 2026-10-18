@@ -7,268 +7,216 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Public+Sans:wght@400;500;600&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: { sans: ['Poppins', 'sans-serif'] },
+                    fontFamily: {
+                        display: ['"Bricolage Grotesque"', 'sans-serif'],
+                        sans: ['"Public Sans"', 'sans-serif'],
+                        type: ['"Courier Prime"', 'monospace']
+                    },
                     colors: {
-                        aris: { 50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8', 900: '#1e3a8a' }
+                        ink: '#10283A',
+                        paper: '#F1F5F6',
+                        manila: '#E2B84B',
+                        steel: '#5B7083',
+                        line: '#C9D4D9'
                     }
                 }
             }
         }
     </script>
+
+    <style>
+        /* Satu-satunya gerakan otomatis: garis pindai di atas surat */
+        @@keyframes scan { 0% { top: 6%; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { top: 94%; opacity: 0; } }
+        .scan-line { position: absolute; left: 0; right: 0; height: 2px; background: #E2B84B; box-shadow: 0 0 14px 3px rgba(226,184,75,.55); animation: scan 4.5s ease-in-out infinite; }
+        @@media (prefers-reduced-motion: reduce) { .scan-line { animation: none; top: 50%; opacity: 1; } html { scroll-behavior: auto; } }
+        .folder-tab { clip-path: polygon(0 0, 78% 0, 88% 100%, 0 100%); }
+        a:focus-visible { outline: 3px solid #E2B84B; outline-offset: 3px; }
+    </style>
 </head>
-<body class="font-sans antialiased bg-white text-slate-900 min-h-screen flex flex-col">
+<body class="font-sans antialiased bg-paper text-ink min-h-screen flex flex-col">
 
     {{-- ================= NAVBAR ================= --}}
-    <nav class="w-full border-b border-slate-100">
-        <div class="max-w-7xl mx-auto px-6 lg:px-8">
-            <div class="flex justify-between items-center h-20">
+    <header class="border-b border-line">
+        <nav class="max-w-6xl mx-auto px-6 lg:px-8 h-20 flex items-center justify-between">
 
-                <div class="flex items-center gap-2.5">
-                    <div class="w-9 h-9 bg-slate-900 rounded-lg flex items-center justify-center text-white font-black text-sm">
-                        RRI
-                    </div>
-                    <span class="font-extrabold text-xl tracking-tight">
-                        ARSIP<span class="text-aris-600">ARIS</span>
-                    </span>
-                </div>
+            <a href="/" class="flex items-end gap-3">
+                <span class="folder-tab bg-manila text-ink font-display font-extrabold text-sm pl-3 pr-6 py-1.5">RRI</span>
+                <span class="font-display font-extrabold text-xl tracking-tight leading-none">Arsip Aris</span>
+            </a>
 
-                <div class="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-500">
-                    <a href="#tentang" class="hover:text-slate-900 transition-colors">Tentang</a>
-                    <a href="#fitur" class="hover:text-slate-900 transition-colors">Fitur</a>
-                    <a href="#alur" class="hover:text-slate-900 transition-colors">Alur Kerja</a>
-                </div>
-
-                <div class="flex items-center gap-3">
-                    @if (Route::has('login'))
-                        @auth
-                            <a href="{{ route('dashboard.index') }}" class="font-bold text-sm text-white bg-slate-900 px-5 py-2.5 rounded-lg hover:bg-slate-800 transition-colors">
-                                Dashboard
-                            </a>
-                        @else
-                            <a href="{{ route('login') }}" class="font-bold text-sm text-white bg-slate-900 px-5 py-2.5 rounded-lg hover:bg-slate-800 transition-colors">
-                                Masuk Sistem
-                            </a>
-                        @endauth
-                    @endif
-                </div>
-
+            <div class="hidden md:flex items-center gap-9 text-sm font-medium text-steel">
+                <a href="#tentang" class="hover:text-ink">Tentang</a>
+                <a href="#fitur" class="hover:text-ink">Fitur</a>
+                <a href="#alur" class="hover:text-ink">Alur kerja</a>
             </div>
-        </div>
-    </nav>
+
+            @if (Route::has('login'))
+                @auth
+                    <a href="{{ route('dashboard.index') }}" class="text-sm font-semibold bg-ink text-white px-5 py-2.5 rounded hover:bg-ink/90">Dashboard</a>
+                @else
+                    <a href="{{ route('login') }}" class="text-sm font-semibold bg-ink text-white px-5 py-2.5 rounded hover:bg-ink/90">Masuk sistem</a>
+                @endauth
+            @endif
+        </nav>
+    </header>
 
     {{-- ================= HERO ================= --}}
     <main class="flex-grow">
-        <div class="max-w-7xl mx-auto px-6 lg:px-8 py-16 lg:py-24">
-            <div class="flex flex-col lg:flex-row items-center gap-14">
+        <section class="max-w-6xl mx-auto px-6 lg:px-8 pt-14 pb-20 lg:pt-20 lg:pb-28">
+            <div class="grid lg:grid-cols-12 gap-12 lg:gap-8 items-center">
 
-                {{-- Text kiri --}}
-                <div class="w-full lg:w-1/2 space-y-7">
-                    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-aris-50 border border-aris-100 text-aris-600 text-xs font-bold uppercase tracking-wide">
-                        <i class="fas fa-broadcast-tower"></i> RRI Stasiun Batam
-                    </div>
+                <div class="lg:col-span-7">
+                    <p class="text-sm font-semibold text-steel mb-5 border-l-4 border-manila pl-3">RRI Stasiun Batam</p>
 
-                    <h1 class="text-4xl sm:text-5xl font-extrabold leading-[1.12] tracking-tight text-slate-900">
-                        Rancang Bangun<br>
-                        Website Arsip Aris<br>
-                        di RRI Batam
+                    <h1 class="font-display font-extrabold text-5xl sm:text-6xl lg:text-[4.25rem] leading-[1.02] tracking-tight">
+                        Rancang Bangun Website Arsip Aris di RRI Batam
                     </h1>
 
-                    <p class="text-lg text-slate-500 leading-relaxed max-w-md">
+                    <p class="mt-7 text-lg text-steel leading-relaxed max-w-xl">
                         ARIS (Arsip Digital) adalah sistem pengelolaan arsip berbasis website yang dirancang untuk membantu RRI Stasiun Batam dalam menyimpan, mengklasifikasi, dan menelusuri dokumen arsip secara cepat, aman, dan terstruktur — menggantikan pencatatan manual yang selama ini digunakan.
                     </p>
 
-                    <div class="flex flex-col sm:flex-row items-start gap-4 pt-2">
+                    <div class="mt-9 flex flex-wrap items-center gap-x-8 gap-y-4">
                         @auth
-                            <a href="{{ route('dashboard.index') }}" class="font-bold text-white bg-slate-900 px-7 py-3.5 rounded-lg hover:bg-slate-800 transition-colors inline-flex items-center gap-2">
-                                <i class="fas fa-box-archive"></i> Buka Sistem Arsip
-                            </a>
+                            <a href="{{ route('dashboard.index') }}" class="font-semibold bg-manila text-ink px-7 py-3.5 rounded hover:brightness-95">Buka sistem arsip</a>
                         @else
-                            <a href="{{ route('login') }}" class="font-bold text-white bg-slate-900 px-7 py-3.5 rounded-lg hover:bg-slate-800 transition-colors inline-flex items-center gap-2">
-                                <i class="fas fa-box-archive"></i> Masuk ke Sistem
-                            </a>
+                            <a href="{{ route('login') }}" class="font-semibold bg-manila text-ink px-7 py-3.5 rounded hover:brightness-95">Masuk ke sistem</a>
                         @endauth
-                        <a href="#tentang" class="font-bold text-slate-900 bg-white border-2 border-slate-900 px-7 py-3 rounded-lg hover:bg-slate-900 hover:text-white transition-colors inline-flex items-center gap-2">
-                            <i class="fas fa-circle-info"></i> Pelajari Sistem
-                        </a>
+                        <a href="#tentang" class="font-semibold underline underline-offset-8 decoration-2 decoration-line hover:decoration-ink">Pelajari sistem</a>
                     </div>
                 </div>
 
-                {{-- Ilustrasi kanan --}}
-                <div class="w-full lg:w-1/2 flex justify-center">
-                    <div class="relative w-full max-w-md flex items-center justify-center">
-                        <div class="absolute w-[420px] h-[420px] rounded-full border-2 border-aris-100"></div>
-                        <div class="absolute w-[320px] h-[320px] rounded-full border-2 border-aris-100"></div>
+                {{-- Ilustrasi: surat yang dipindai --}}
+                <div class="lg:col-span-5" aria-hidden="true">
+                    <div class="relative max-w-sm mx-auto">
+                        <div class="relative bg-white border border-line rounded shadow-[6px_6px_0_#10283A] p-6 overflow-hidden rotate-[-1.5deg]">
+                            <div class="scan-line"></div>
+                            <div class="font-type text-[11px] leading-relaxed text-ink">
+                                <div class="font-bold text-xs">RRI STASIUN BATAM</div>
+                                <div class="mt-3">Nomor &nbsp;: 123/RRI/BTM/IV/2024</div>
+                                <div>Perihal : Undangan Rapat</div>
+                            </div>
+                            <div class="mt-4 space-y-2">
+                                <div class="h-1.5 bg-line rounded w-full"></div>
+                                <div class="h-1.5 bg-line rounded w-11/12"></div>
+                                <div class="h-1.5 bg-line rounded w-full"></div>
+                                <div class="h-1.5 bg-line rounded w-3/4"></div>
+                                <div class="h-1.5 bg-line rounded w-10/12"></div>
+                                <div class="h-1.5 bg-line rounded w-2/3"></div>
+                            </div>
+                            <div class="mt-6 h-10 w-24 border-2 border-steel/40 rounded-full"></div>
+                        </div>
 
-                        <div class="relative w-64 sm:w-72 h-64 sm:h-72 bg-slate-900 rounded-3xl shadow-xl flex flex-col items-center justify-center gap-4 text-white">
-                            <i class="fas fa-folder-open text-6xl text-aris-500"></i>
-                            <span class="font-bold text-sm tracking-widest uppercase">Arsip Digital</span>
-                            <span class="text-xs text-slate-400">RRI Batam</span>
+                        <div class="relative -mt-6 ml-10 bg-ink text-white rounded p-5 rotate-[1deg]">
+                            <div class="text-xs text-white/60 mb-3">Contoh data arsip tersimpan</div>
+                            <dl class="font-type text-xs space-y-1.5">
+                                <div class="flex gap-3"><dt class="w-16 text-manila">Nomor</dt><dd>123/RRI/BTM/IV/2024</dd></div>
+                                <div class="flex gap-3"><dt class="w-16 text-manila">Jenis</dt><dd>Surat masuk</dd></div>
+                                <div class="flex gap-3"><dt class="w-16 text-manila">Tahun</dt><dd>2024</dd></div>
+                            </dl>
                         </div>
                     </div>
                 </div>
 
             </div>
-        </div>
+        </section>
     </main>
 
     {{-- ================= TENTANG ================= --}}
-    <section id="tentang" class="bg-slate-50 py-20 border-t border-slate-100">
-        <div class="max-w-7xl mx-auto px-6 lg:px-8">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                <div>
-                    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-aris-50 border border-aris-100 text-aris-600 text-xs font-bold uppercase tracking-wide mb-4">
-                        <i class="fas fa-lightbulb"></i> Latar Belakang
-                    </div>
-                    <h2 class="text-3xl font-extrabold text-slate-900 mb-4">Mengapa Arsip Digital Dibutuhkan?</h2>
-                    <p class="text-slate-500 leading-relaxed mb-4">
-                        Pengelolaan arsip di RRI Stasiun Batam selama ini masih banyak dilakukan secara manual, mulai dari pencatatan buku agenda hingga penyimpanan fisik dokumen. Cara ini rentan terhadap kehilangan data, kesulitan pencarian, dan keterbatasan ruang penyimpanan.
-                    </p>
-                    <p class="text-slate-500 leading-relaxed">
-                        Melalui website ARIS, proses pengarsipan surat, dokumen, dan berkas kedinasan dapat dilakukan secara digital — mempermudah pencarian, meningkatkan keamanan data, serta mendukung efisiensi kerja pegawai RRI Batam.
-                    </p>
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="bg-white rounded-2xl p-6 border border-slate-100 text-center">
-                        <i class="fas fa-file-shield text-3xl text-aris-600 mb-3"></i>
-                        <div class="font-bold text-slate-900 text-sm">Keamanan Data</div>
-                    </div>
-                    <div class="bg-white rounded-2xl p-6 border border-slate-100 text-center">
-                        <i class="fas fa-magnifying-glass text-3xl text-aris-600 mb-3"></i>
-                        <div class="font-bold text-slate-900 text-sm">Pencarian Cepat</div>
-                    </div>
-                    <div class="bg-white rounded-2xl p-6 border border-slate-100 text-center">
-                        <i class="fas fa-cloud text-3xl text-aris-600 mb-3"></i>
-                        <div class="font-bold text-slate-900 text-sm">Akses Digital</div>
-                    </div>
-                    <div class="bg-white rounded-2xl p-6 border border-slate-100 text-center">
-                        <i class="fas fa-sitemap text-3xl text-aris-600 mb-3"></i>
-                        <div class="font-bold text-slate-900 text-sm">Klasifikasi Terstruktur</div>
-                    </div>
-                </div>
+    <section id="tentang" class="bg-white border-y border-line py-20 lg:py-24">
+        <div class="max-w-6xl mx-auto px-6 lg:px-8 grid lg:grid-cols-12 gap-12">
+            <div class="lg:col-span-6">
+                <h2 class="font-display font-extrabold text-3xl sm:text-4xl tracking-tight leading-tight">Mengapa arsip digital dibutuhkan?</h2>
+                <p class="mt-6 text-steel leading-relaxed max-w-prose">
+                    Pengelolaan arsip di RRI Stasiun Batam selama ini masih banyak dilakukan secara manual, mulai dari pencatatan buku agenda hingga penyimpanan fisik dokumen. Cara ini rentan terhadap kehilangan data, kesulitan pencarian, dan keterbatasan ruang penyimpanan.
+                </p>
+                <p class="mt-4 text-steel leading-relaxed max-w-prose">
+                    Melalui website ARIS, proses pengarsipan surat, dokumen, dan berkas kedinasan dapat dilakukan secara digital — mempermudah pencarian, meningkatkan keamanan data, serta mendukung efisiensi kerja pegawai RRI Batam.
+                </p>
             </div>
+
+            <ul class="lg:col-span-5 lg:col-start-8 self-center divide-y divide-line border-y border-line">
+                <li class="py-5 flex items-center gap-4"><span class="w-2.5 h-2.5 bg-manila rotate-45"></span><span class="font-display font-bold text-lg">Keamanan data</span></li>
+                <li class="py-5 flex items-center gap-4"><span class="w-2.5 h-2.5 bg-manila rotate-45"></span><span class="font-display font-bold text-lg">Pencarian cepat</span></li>
+                <li class="py-5 flex items-center gap-4"><span class="w-2.5 h-2.5 bg-manila rotate-45"></span><span class="font-display font-bold text-lg">Akses digital</span></li>
+                <li class="py-5 flex items-center gap-4"><span class="w-2.5 h-2.5 bg-manila rotate-45"></span><span class="font-display font-bold text-lg">Klasifikasi terstruktur</span></li>
+            </ul>
         </div>
     </section>
 
     {{-- ================= FITUR ================= --}}
-    <section id="fitur" class="py-20">
-        <div class="max-w-7xl mx-auto px-6 lg:px-8">
-            <div class="text-center mb-16">
-                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-aris-50 border border-aris-100 text-aris-600 text-xs font-bold uppercase tracking-wide mb-4">
-                    <i class="fas fa-layer-group"></i> Fitur Utama Sistem
-                </div>
-                <h2 class="text-3xl font-extrabold text-slate-900 mb-4">Kemampuan Website ARIS</h2>
-                <p class="text-slate-500 max-w-2xl mx-auto">Dirancang khusus untuk mendukung alur kerja kearsipan di lingkungan RRI Stasiun Batam, dari input dokumen hingga pelaporan.</p>
+    <section id="fitur" class="py-20 lg:py-24">
+        <div class="max-w-6xl mx-auto px-6 lg:px-8">
+            <div class="max-w-2xl mb-14">
+                <h2 class="font-display font-extrabold text-3xl sm:text-4xl tracking-tight">Kemampuan website ARIS</h2>
+                <p class="mt-4 text-steel leading-relaxed">Dirancang khusus untuk mendukung alur kerja kearsipan di lingkungan RRI Stasiun Batam, dari input dokumen hingga pelaporan.</p>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-
-                <div class="bg-white rounded-2xl p-8 hover:-translate-y-1 hover:shadow-lg transition-all duration-300 border border-slate-100">
-                    <div class="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center text-aris-600 mb-6">
-                        <i class="fas fa-upload text-2xl"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-slate-900 mb-3">Input & Unggah Arsip</h3>
-                    <p class="text-slate-500 text-sm leading-relaxed">Pegawai dapat mengunggah dokumen arsip beserta metadata seperti nomor surat, tanggal, kategori, dan unit kerja terkait secara langsung melalui website.</p>
-                </div>
-
-                <div class="bg-white rounded-2xl p-8 hover:-translate-y-1 hover:shadow-lg transition-all duration-300 border border-slate-100">
-                    <div class="w-14 h-14 bg-slate-200 rounded-xl flex items-center justify-center text-slate-700 mb-6">
-                        <i class="fas fa-tags text-2xl"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-slate-900 mb-3">Klasifikasi & Kategori</h3>
-                    <p class="text-slate-500 text-sm leading-relaxed">Setiap arsip dikelompokkan berdasarkan jenis dokumen, unit kerja, dan tahun, sehingga penelusuran data menjadi lebih rapi dan sistematis.</p>
-                </div>
-
-                <div class="bg-white rounded-2xl p-8 hover:-translate-y-1 hover:shadow-lg transition-all duration-300 border border-slate-100">
-                    <div class="w-14 h-14 bg-emerald-100 rounded-xl flex items-center justify-center text-emerald-600 mb-6">
-                        <i class="fas fa-magnifying-glass text-2xl"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-slate-900 mb-3">Pencarian Arsip</h3>
-                    <p class="text-slate-500 text-sm leading-relaxed">Fitur pencarian memungkinkan pegawai menemukan dokumen berdasarkan kata kunci, nomor surat, atau rentang tanggal hanya dalam hitungan detik.</p>
-                </div>
-
-                <div class="bg-white rounded-2xl p-8 hover:-translate-y-1 hover:shadow-lg transition-all duration-300 border border-slate-100">
-                    <div class="w-14 h-14 bg-amber-100 rounded-xl flex items-center justify-center text-amber-600 mb-6">
-                        <i class="fas fa-user-shield text-2xl"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-slate-900 mb-3">Hak Akses Bertingkat</h3>
-                    <p class="text-slate-500 text-sm leading-relaxed">Setiap pengguna memiliki hak akses berbeda sesuai peran — admin, kepala unit, atau staf — untuk menjaga keamanan dan validitas data arsip.</p>
-                </div>
-
-                <div class="bg-white rounded-2xl p-8 hover:-translate-y-1 hover:shadow-lg transition-all duration-300 border border-slate-100">
-                    <div class="w-14 h-14 bg-rose-100 rounded-xl flex items-center justify-center text-rose-600 mb-6">
-                        <i class="fas fa-clock-rotate-left text-2xl"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-slate-900 mb-3">Riwayat & Log Aktivitas</h3>
-                    <p class="text-slate-500 text-sm leading-relaxed">Setiap perubahan pada data arsip tercatat otomatis, memudahkan audit dan pelacakan siapa yang mengubah atau menambahkan dokumen.</p>
-                </div>
-
-                <div class="bg-white rounded-2xl p-8 hover:-translate-y-1 hover:shadow-lg transition-all duration-300 border border-slate-100">
-                    <div class="w-14 h-14 bg-indigo-100 rounded-xl flex items-center justify-center text-indigo-600 mb-6">
-                        <i class="fas fa-file-export text-2xl"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-slate-900 mb-3">Cetak & Ekspor Laporan</h3>
-                    <p class="text-slate-500 text-sm leading-relaxed">Data arsip dapat diekspor atau dicetak dalam bentuk laporan rekapitulasi untuk kebutuhan administrasi dan pelaporan kedinasan.</p>
-                </div>
-
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 border-t-2 border-ink">
+                @php
+                    $fitur = [
+                        ['Input & unggah arsip', 'Pegawai dapat mengunggah dokumen arsip beserta metadata seperti nomor surat, tanggal, kategori, dan unit kerja terkait secara langsung melalui website.'],
+                        ['Klasifikasi & kategori', 'Setiap arsip dikelompokkan berdasarkan jenis dokumen, unit kerja, dan tahun, sehingga penelusuran data menjadi lebih rapi dan sistematis.'],
+                        ['Pencarian arsip', 'Fitur pencarian memungkinkan pegawai menemukan dokumen berdasarkan kata kunci, nomor surat, atau rentang tanggal hanya dalam hitungan detik.'],
+                        ['Hak akses bertingkat', 'Setiap pengguna memiliki hak akses berbeda sesuai peran — admin, kepala unit, atau staf — untuk menjaga keamanan dan validitas data arsip.'],
+                        ['Riwayat & log aktivitas', 'Setiap perubahan pada data arsip tercatat otomatis, memudahkan audit dan pelacakan siapa yang mengubah atau menambahkan dokumen.'],
+                        ['Cetak & ekspor laporan', 'Data arsip dapat diekspor atau dicetak dalam bentuk laporan rekapitulasi untuk kebutuhan administrasi dan pelaporan kedinasan.'],
+                    ];
+                @endphp
+                @foreach ($fitur as $f)
+                    <article class="py-8 md:pr-10 border-b border-line">
+                        <h3 class="font-display font-bold text-xl mb-3">{{ $f[0] }}</h3>
+                        <p class="text-steel text-[15px] leading-relaxed">{{ $f[1] }}</p>
+                    </article>
+                @endforeach
             </div>
         </div>
     </section>
 
     {{-- ================= ALUR KERJA ================= --}}
-    <section id="alur" class="bg-slate-900 py-20 text-white">
-        <div class="max-w-7xl mx-auto px-6 lg:px-8">
-            <div class="text-center mb-16">
-                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 text-aris-500 text-xs font-bold uppercase tracking-wide mb-4">
-                    <i class="fas fa-diagram-project"></i> Alur Kerja Sistem
-                </div>
-                <h2 class="text-3xl font-extrabold mb-4">Dari Dokumen Fisik ke Arsip Digital</h2>
-                <p class="text-slate-400 max-w-2xl mx-auto">Empat tahap sederhana yang dilalui setiap dokumen sebelum menjadi arsip digital yang tertata di sistem ARIS.</p>
+    <section id="alur" class="bg-ink text-white py-20 lg:py-24">
+        <div class="max-w-6xl mx-auto px-6 lg:px-8">
+            <div class="max-w-2xl mb-14">
+                <h2 class="font-display font-extrabold text-3xl sm:text-4xl tracking-tight">Dari dokumen fisik ke arsip digital</h2>
+                <p class="mt-4 text-white/65 leading-relaxed">Empat tahap sederhana yang dilalui setiap dokumen sebelum menjadi arsip digital yang tertata di sistem ARIS.</p>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <div class="bg-white/5 rounded-2xl p-6 border border-white/10">
-                    <div class="text-aris-500 font-black text-3xl mb-3">01</div>
-                    <h3 class="font-bold mb-2">Penerimaan Dokumen</h3>
-                    <p class="text-slate-400 text-sm">Dokumen atau surat diterima oleh bagian tata usaha RRI Batam.</p>
-                </div>
-                <div class="bg-white/5 rounded-2xl p-6 border border-white/10">
-                    <div class="text-aris-500 font-black text-3xl mb-3">02</div>
-                    <h3 class="font-bold mb-2">Input ke Sistem</h3>
-                    <p class="text-slate-400 text-sm">Petugas mengunggah dan mencatat metadata dokumen ke website ARIS.</p>
-                </div>
-                <div class="bg-white/5 rounded-2xl p-6 border border-white/10">
-                    <div class="text-aris-500 font-black text-3xl mb-3">03</div>
-                    <h3 class="font-bold mb-2">Klasifikasi Otomatis</h3>
-                    <p class="text-slate-400 text-sm">Sistem mengelompokkan arsip berdasarkan kategori dan unit kerja terkait.</p>
-                </div>
-                <div class="bg-white/5 rounded-2xl p-6 border border-white/10">
-                    <div class="text-aris-500 font-black text-3xl mb-3">04</div>
-                    <h3 class="font-bold mb-2">Penelusuran & Laporan</h3>
-                    <p class="text-slate-400 text-sm">Arsip siap dicari, diakses, dan direkap kapan pun dibutuhkan.</p>
-                </div>
-            </div>
+            <ol class="grid md:grid-cols-4 gap-10 md:gap-6 relative">
+                <div class="hidden md:block absolute top-[15px] left-0 right-0 h-px bg-white/25"></div>
+                @php
+                    $alur = [
+                        ['Penerimaan dokumen', 'Dokumen atau surat diterima oleh bagian tata usaha RRI Batam.'],
+                        ['Input ke sistem', 'Petugas mengunggah dan mencatat metadata dokumen ke website ARIS.'],
+                        ['Klasifikasi otomatis', 'Sistem mengelompokkan arsip berdasarkan kategori dan unit kerja terkait.'],
+                        ['Penelusuran & laporan', 'Arsip siap dicari, diakses, dan direkap kapan pun dibutuhkan.'],
+                    ];
+                @endphp
+                @foreach ($alur as $i => $a)
+                    <li class="relative">
+                        <span class="relative z-10 flex items-center justify-center w-8 h-8 rounded-full bg-manila text-ink font-display font-extrabold text-sm">{{ $i + 1 }}</span>
+                        <h3 class="mt-5 font-display font-bold text-lg">{{ $a[0] }}</h3>
+                        <p class="mt-2 text-white/65 text-sm leading-relaxed">{{ $a[1] }}</p>
+                    </li>
+                @endforeach
+            </ol>
         </div>
     </section>
 
     {{-- ================= FOOTER ================= --}}
-    <footer class="bg-slate-900 text-slate-400 py-8 text-center border-t border-slate-800">
-        <div class="max-w-7xl mx-auto px-4 flex flex-col items-center">
-            <div class="flex items-center gap-2 mb-4 opacity-60 hover:opacity-100 transition-opacity">
-                <div class="w-6 h-6 bg-white rounded-md flex items-center justify-center text-slate-900 font-black text-xs">RRI</div>
-                <span class="font-bold text-white text-sm">Website Arsip ARIS - RRI Batam</span>
+    <footer class="bg-paper border-t border-line py-8">
+        <div class="max-w-6xl mx-auto px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-steel">
+            <div class="flex items-end gap-2.5">
+                <span class="folder-tab bg-manila text-ink font-display font-extrabold text-xs pl-2.5 pr-5 py-1">RRI</span>
+                <span class="font-display font-bold text-ink">Website Arsip ARIS - RRI Batam</span>
             </div>
-            <p class="text-sm">
-                &copy; {{ date('Y') }} RRI Stasiun Batam. Rancang Bangun Website Arsip Aris.
-            </p>
+            <p>&copy; {{ date('Y') }} RRI Stasiun Batam. Rancang Bangun Website Arsip Aris.</p>
         </div>
     </footer>
 

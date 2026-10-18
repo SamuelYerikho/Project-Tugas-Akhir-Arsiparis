@@ -9,6 +9,10 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\RolePermissionController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\NotificationController;
+
+
 
 Route::get('/', function () {
     return view('home');
@@ -23,9 +27,15 @@ Route::controller(AuthController::class)->group(function () {
 
 Route::middleware('auth')->group(function () {
 
-    Route::get('/dashboard', function () {
-        return view('dashboard.index');
-    })->name('dashboard.index');
+    Route::get('/dashboard', [DashboardController::class, 'index'])
+        ->name('dashboard.index');
+
+    // Notifikasi
+    Route::prefix('notifikasi')->name('notifikasi.')->controller(NotificationController::class)->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('/baca-semua', 'markAllAsRead')->name('baca-semua');
+        Route::post('/{id}/baca', 'markAsRead')->name('baca');
+    });
 
     // Pengaturan Akun
     Route::prefix('pengaturan-akun')->name('profile.')->controller(ProfileController::class)->group(function () {

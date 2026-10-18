@@ -1,33 +1,45 @@
 @extends('layouts.app')
 
-@section('title', 'Pengaturan Akun')
+{{-- Layout memakai 'pageTitle' (bukan 'title') untuk judul di navbar dan tab browser --}}
+@section('pageTitle', 'Akun Saya')
 
 @section('content')
-    <div class="max-w-3xl mx-auto space-y-6">
+@php
+    $input = 'w-full px-3.5 py-3 bg-white border rounded text-sm text-ink outline-none focus:ring-2 focus:ring-manila focus:border-ink transition-colors';
+    $locked = 'w-full px-3.5 py-3 bg-paper border border-line rounded text-sm text-steel cursor-not-allowed';
+    $label = 'block text-sm font-semibold mb-1.5';
+@endphp
 
-        <div>
-            <h1 class="text-xl font-extrabold text-slate-900">Pengaturan Akun</h1>
-            <p class="text-sm text-slate-500 mt-1">Kelola informasi profil dan keamanan akun kamu.</p>
+    <div class="max-w-5xl">
+
+        <div class="mb-10">
+            <h2 class="font-display font-extrabold text-3xl tracking-tight">Akun saya</h2>
+            <p class="text-sm text-steel mt-2">Kelola profil dan keamanan akun Anda.</p>
         </div>
 
         @if (session('success'))
-            <div class="rounded-xl bg-green-50 border border-green-200 text-green-700 text-sm font-semibold px-4 py-3">
+            <div class="mb-8 bg-white border-l-4 border-manila text-ink text-sm font-semibold px-4 py-3">
                 {{ session('success') }}
             </div>
         @endif
 
-        {{-- Card: Info Profil & Foto --}}
-        <div class="bg-white border border-slate-200 rounded-2xl p-6">
-            <h2 class="text-base font-bold text-slate-900">Informasi Profil</h2>
-            <p class="text-sm text-slate-400 mt-1 mb-5">Perbarui nama dan foto profil kamu. Username &amp; email tidak dapat diubah.</p>
+        {{-- ===== Bagian: Profil ===== --}}
+        <section class="grid lg:grid-cols-3 gap-6 lg:gap-10 border-t-2 border-ink pt-8 pb-12">
+            <div>
+                <h3 class="font-display font-bold text-xl">Profil</h3>
+                <p class="text-sm text-steel mt-2 leading-relaxed">
+                    Ubah nama dan foto Anda. Username dan email dikelola oleh admin, jadi tidak bisa diubah di sini.
+                </p>
+            </div>
 
-            <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data" class="space-y-5">
+            <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data"
+                class="lg:col-span-2 bg-white border border-line rounded p-6 sm:p-8 space-y-6">
                 @csrf
                 @method('PATCH')
 
-                {{-- Foto Profil --}}
-                <div class="flex items-center gap-4">
-                    <div class="w-16 h-16 rounded-full bg-aris-600 flex items-center justify-center text-white font-bold text-lg overflow-hidden shrink-0">
+                {{-- Foto profil --}}
+                <div class="flex items-center gap-5">
+                    <div class="w-20 h-20 rounded bg-manila flex items-center justify-center text-ink font-display font-extrabold text-2xl overflow-hidden shrink-0">
                         @if ($user->profile)
                             <img src="{{ asset('storage/' . $user->profile) }}" alt="Avatar"
                                 class="w-full h-full object-cover">
@@ -36,93 +48,97 @@
                         @endif
                     </div>
                     <div>
-                        <label for="profile" class="inline-block cursor-pointer text-sm font-semibold text-aris-700 bg-aris-50 hover:bg-aris-100 px-4 py-2 rounded-xl transition-colors">
-                            Ganti Foto
+                        <label for="profile"
+                            class="inline-block cursor-pointer text-sm font-semibold text-ink border border-ink px-4 py-2 rounded hover:bg-ink hover:text-white transition-colors">
+                            Ganti foto
                         </label>
                         <input id="profile" name="profile" type="file" accept="image/png,image/jpeg" class="hidden">
-                        <p id="profile-filename" class="text-xs text-slate-400 mt-1">JPG atau PNG, maks 2MB.</p>
+                        <p id="profile-filename" class="text-xs text-steel mt-2">JPG atau PNG, maksimal 2 MB.</p>
                         @error('profile')
-                            <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
+                            <p class="text-xs text-red-700 mt-1">{{ $message }}</p>
                         @enderror
                     </div>
                 </div>
 
                 {{-- Nama --}}
                 <div>
-                    <label for="name" class="block text-sm font-semibold text-slate-700 mb-1.5">Nama</label>
+                    <label for="name" class="{{ $label }}">Nama</label>
                     <input id="name" name="name" type="text" value="{{ old('name', $user->name) }}"
-                        class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-aris-500 focus:border-transparent">
+                        class="{{ $input }} @error('name') border-red-600 @else border-line @enderror">
                     @error('name')
-                        <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
+                        <p class="text-xs text-red-700 mt-1.5">{{ $message }}</p>
                     @enderror
                 </div>
 
-                {{-- Username (readonly) --}}
-                <div>
-                    <label for="username" class="block text-sm font-semibold text-slate-700 mb-1.5">Username</label>
-                    <input id="username" type="text" value="{{ $user->username }}" disabled
-                        class="w-full px-3.5 py-2.5 border border-slate-200 bg-slate-50 rounded-xl text-sm text-slate-500 cursor-not-allowed">
-                    <p class="text-xs text-slate-400 mt-1">Username tidak dapat diubah.</p>
+                {{-- Username & email (hanya baca) --}}
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div>
+                        <label for="username" class="{{ $label }}">Username</label>
+                        <input id="username" type="text" value="{{ $user->username }}" disabled class="{{ $locked }}">
+                    </div>
+                    <div>
+                        <label for="email" class="{{ $label }}">Email</label>
+                        <input id="email" type="email" value="{{ $user->email }}" disabled class="{{ $locked }}">
+                    </div>
                 </div>
 
-                {{-- Email (readonly) --}}
-                <div>
-                    <label for="email" class="block text-sm font-semibold text-slate-700 mb-1.5">Email</label>
-                    <input id="email" type="email" value="{{ $user->email }}" disabled
-                        class="w-full px-3.5 py-2.5 border border-slate-200 bg-slate-50 rounded-xl text-sm text-slate-500 cursor-not-allowed">
-                    <p class="text-xs text-slate-400 mt-1">Email tidak dapat diubah.</p>
-                </div>
-
-                <div class="pt-2">
+                <div class="pt-4 border-t border-line flex justify-end">
                     <button type="submit"
-                        class="bg-aris-600 hover:bg-aris-700 text-white text-sm font-bold px-5 py-2.5 rounded-xl transition-colors">
-                        Simpan Perubahan
+                        class="px-6 py-3 bg-manila text-ink text-sm font-semibold rounded hover:brightness-95 transition">
+                        Simpan profil
                     </button>
                 </div>
             </form>
-        </div>
+        </section>
 
-        {{-- Card: Ubah Password --}}
-        <div class="bg-white border border-slate-200 rounded-2xl p-6">
-            <h2 class="text-base font-bold text-slate-900">Ubah Password</h2>
-            <p class="text-sm text-slate-400 mt-1 mb-5">Gunakan password yang kuat dan belum pernah dipakai di tempat lain.</p>
+        {{-- ===== Bagian: Keamanan ===== --}}
+        <section class="grid lg:grid-cols-3 gap-6 lg:gap-10 border-t-2 border-ink pt-8">
+            <div>
+                <h3 class="font-display font-bold text-xl">Keamanan</h3>
+                <p class="text-sm text-steel mt-2 leading-relaxed">
+                    Pakai kata sandi yang kuat dan belum pernah dipakai di tempat lain.
+                </p>
+            </div>
 
-            <form action="{{ route('profile.password.update') }}" method="POST" class="space-y-5">
+            <form action="{{ route('profile.password.update') }}" method="POST"
+                class="lg:col-span-2 bg-white border border-line rounded p-6 sm:p-8 space-y-6">
                 @csrf
                 @method('PUT')
 
                 <div>
-                    <label for="current_password" class="block text-sm font-semibold text-slate-700 mb-1.5">Password Saat Ini</label>
+                    <label for="current_password" class="{{ $label }}">Kata sandi saat ini</label>
                     <input id="current_password" name="current_password" type="password"
-                        class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-aris-500 focus:border-transparent">
+                        class="{{ $input }} @error('current_password') border-red-600 @else border-line @enderror">
                     @error('current_password')
-                        <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
+                        <p class="text-xs text-red-700 mt-1.5">{{ $message }}</p>
                     @enderror
                 </div>
 
-                <div>
-                    <label for="password" class="block text-sm font-semibold text-slate-700 mb-1.5">Password Baru</label>
-                    <input id="password" name="password" type="password"
-                        class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-aris-500 focus:border-transparent">
-                    @error('password')
-                        <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
-                    @enderror
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div>
+                        <label for="password" class="{{ $label }}">Kata sandi baru</label>
+                        <input id="password" name="password" type="password"
+                            class="{{ $input }} @error('password') border-red-600 @else border-line @enderror">
+                        @error('password')
+                            <p class="text-xs text-red-700 mt-1.5">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label for="password_confirmation" class="{{ $label }}">Ulangi kata sandi baru</label>
+                        <input id="password_confirmation" name="password_confirmation" type="password"
+                            class="{{ $input }} border-line">
+                    </div>
                 </div>
 
-                <div>
-                    <label for="password_confirmation" class="block text-sm font-semibold text-slate-700 mb-1.5">Konfirmasi Password Baru</label>
-                    <input id="password_confirmation" name="password_confirmation" type="password"
-                        class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-aris-500 focus:border-transparent">
-                </div>
-
-                <div class="pt-2">
+                <div class="pt-4 border-t border-line flex justify-end">
                     <button type="submit"
-                        class="bg-slate-900 hover:bg-slate-800 text-white text-sm font-bold px-5 py-2.5 rounded-xl transition-colors">
-                        Ubah Password
+                        class="px-6 py-3 bg-ink text-white text-sm font-semibold rounded hover:bg-ink/90 transition-colors">
+                        Ganti kata sandi
                     </button>
                 </div>
             </form>
-        </div>
+        </section>
 
     </div>
 @endsection

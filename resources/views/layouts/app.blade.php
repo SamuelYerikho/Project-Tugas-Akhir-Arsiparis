@@ -4,14 +4,14 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>@yield('pageTitle', 'Dashboard') | Sistem Arsip ARIS - RRI Batam</title>
+    <title>@yield('pageTitle', 'Beranda') | Sistem Arsip ARIS - RRI Batam</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
+    {{-- Font Awesome tetap dimuat karena halaman-halaman isi (arsip, pengguna, dll) masih memakai ikonnya --}}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -20,9 +20,16 @@
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['Poppins', 'sans-serif']
+                        display: ['"Bricolage Grotesque"', 'sans-serif'],
+                        sans: ['"Public Sans"', 'sans-serif']
                     },
                     colors: {
+                        ink: '#10283A',
+                        paper: '#F1F5F6',
+                        manila: '#E2B84B',
+                        steel: '#5B7083',
+                        line: '#C9D4D9',
+                        /* palet lama dipertahankan agar halaman isi yang masih memakai kelas aris-* tidak rusak */
                         aris: {
                             50: '#eff6ff',
                             100: '#dbeafe',
@@ -38,10 +45,16 @@
     </script>
 
     <style>
-        [x-cloak] {
-            display: none !important;
-        }
+        [x-cloak] { display: none !important; }
+        .folder-tab { clip-path: polygon(0 0, 78% 0, 88% 100%, 0 100%); }
+        a:focus-visible, button:focus-visible { outline: 3px solid #E2B84B; outline-offset: 2px; }
     </style>
+
+    {{-- Echo/Reverb untuk notifikasi realtime (hanya JS, CSS tetap dari Tailwind CDN).
+         Harus sebelum Alpine supaya window.Echo sudah siap saat komponen lonceng berjalan. --}}
+    @auth
+        @vite('resources/js/app.js')
+    @endauth
 
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/3.13.5/cdn.min.js"></script>
 
@@ -51,14 +64,14 @@
     @stack('styles')
 </head>
 
-<body class="font-sans antialiased bg-slate-50 text-slate-900">
+<body class="font-sans antialiased bg-paper text-ink">
 
     {{-- Sidebar --}}
     @include('layouts.partials.sidebar')
 
-    {{-- Overlay mobile saat sidebar terbuka --}}
+    {{-- Lapisan gelap di mobile saat sidebar terbuka --}}
     <div x-show="sidebarOpen" x-cloak @click="sidebarOpen = false" x-transition.opacity
-        class="fixed inset-0 z-30 bg-slate-900/50 lg:hidden"></div>
+        class="fixed inset-0 z-30 bg-ink/60 lg:hidden"></div>
 
     {{-- Area konten utama --}}
     <div class="flex flex-col min-h-screen transition-[padding] duration-300"
@@ -66,7 +79,7 @@
 
         @include('layouts.partials.navbar')
 
-        <main class="flex-1 px-4 sm:px-6 lg:px-8 py-8">
+        <main class="flex-1 px-4 sm:px-6 lg:px-10 py-8">
             @yield('content')
         </main>
 
@@ -78,9 +91,7 @@
 
     {{-- Notifikasi flash message via SweetAlert2 --}}
     <script>
-        // Toast: dipakai untuk notifikasi ringan (success, info) yang tidak
-        // perlu menghentikan aktivitas user — muncul di pojok, hilang sendiri,
-        // tidak perlu klik apa pun.
+        // Toast: notifikasi ringan (success, info) yang muncul di pojok dan hilang sendiri.
         const arisToast = Swal.mixin({
             toast: true,
             position: 'top-end',
@@ -112,15 +123,15 @@
         </script>
     @endif
 
-    {{-- Modal: dipakai untuk error/warning yang penting dan wajib disadari user --}}
+    {{-- Modal: untuk error/warning penting yang wajib disadari pengguna --}}
     @if (session('error'))
         <script>
             Swal.fire({
                 icon: 'error',
-                title: 'Gagal',
+                title: 'Tidak berhasil',
                 text: @json(session('error')),
-                confirmButtonColor: '#2563eb',
-                confirmButtonText: 'Mengerti',
+                confirmButtonColor: '#10283A',
+                confirmButtonText: 'Tutup',
             });
         </script>
     @endif
@@ -129,10 +140,10 @@
         <script>
             Swal.fire({
                 icon: 'warning',
-                title: 'Perhatian',
+                title: 'Mohon diperhatikan',
                 text: @json(session('warning')),
-                confirmButtonColor: '#2563eb',
-                confirmButtonText: 'Mengerti',
+                confirmButtonColor: '#10283A',
+                confirmButtonText: 'Tutup',
             });
         </script>
     @endif
@@ -142,10 +153,10 @@
         <script>
             Swal.fire({
                 icon: 'error',
-                title: 'Periksa Kembali',
+                title: 'Ada isian yang perlu diperbaiki',
                 html: @json(implode('<br>', $errors->all())),
-                confirmButtonColor: '#2563eb',
-                confirmButtonText: 'Mengerti',
+                confirmButtonColor: '#10283A',
+                confirmButtonText: 'Tutup',
             });
         </script>
     @endif

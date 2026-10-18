@@ -1,120 +1,125 @@
 @extends('layouts.app')
 
-@section('pageTitle', 'Manajemen Arsip')
+@section('pageTitle', 'Daftar Arsip')
 
 @section('content')
-    <div class="flex flex-col gap-6">
+    <div class="max-w-7xl">
 
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
             <div>
-                <h1 class="text-2xl font-bold text-slate-800">Manajemen Arsip</h1>
-                <p class="text-sm text-slate-500 mt-1">Kelola seluruh arsip yang telah diunggah.</p>
+                <h2 class="font-display font-extrabold text-3xl tracking-tight">Daftar arsip</h2>
+                <p class="text-sm text-steel mt-2 max-w-md">Kelola seluruh arsip yang sudah diunggah.</p>
             </div>
 
             @can('upload archives')
                 <a href="{{ route('archives.create') }}"
-                    class="inline-flex items-center gap-2 bg-aris-600 hover:bg-aris-700 text-white text-sm font-medium px-4 py-2.5 rounded-lg transition">
-                    <i class="fa-solid fa-upload"></i>
-                    Unggah Arsip
+                    class="inline-flex items-center justify-center gap-2 px-5 py-3 bg-manila text-ink text-sm font-semibold rounded hover:brightness-95 transition">
+                    <i class="fa-solid fa-upload text-xs"></i>
+                    Unggah arsip
                 </a>
             @endcan
         </div>
 
         @if (session('success'))
-            <div class="bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm px-4 py-3 rounded-lg">
+            <div class="mb-6 bg-white border-l-4 border-manila text-ink text-sm font-semibold px-4 py-3">
                 {{ session('success') }}
             </div>
         @endif
         @if (session('error'))
-            <div class="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-lg">
+            <div class="mb-6 bg-white border-l-4 border-red-600 text-red-700 text-sm font-semibold px-4 py-3">
                 {{ session('error') }}
             </div>
         @endif
 
-        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-4">
-            <form method="GET" action="{{ route('archives.index') }}" class="flex gap-3">
-                <div class="relative flex-1">
-                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
-                    <input type="text" name="search" value="{{ request('search') }}"
-                        placeholder="Cari judul, kategori, deskripsi, atau isi dokumen..."
-                        class="w-full pl-9 pr-4 py-2.5 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-aris-500 focus:border-aris-500">
-                </div>
+        {{-- Pencarian --}}
+        <form method="GET" action="{{ route('archives.index') }}" class="flex flex-col sm:flex-row gap-3 mb-6">
+            <div class="relative flex-1">
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-steel text-sm"></i>
+                <input type="text" name="search" value="{{ request('search') }}"
+                    placeholder="Cari judul, kategori, deskripsi, atau isi dokumen..."
+                    class="w-full pl-10 pr-4 py-3 bg-white text-sm border border-line rounded outline-none focus:ring-2 focus:ring-manila focus:border-ink transition-colors">
+            </div>
+            <div class="flex items-center gap-4">
                 <button type="submit"
-                    class="px-4 py-2.5 text-sm font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition">
+                    class="px-6 py-3 text-sm font-semibold bg-ink text-white rounded hover:bg-ink/90 transition-colors">
                     Cari
                 </button>
                 @if (request('search'))
                     <a href="{{ route('archives.index') }}"
-                        class="px-4 py-2.5 text-sm font-medium text-slate-500 hover:text-slate-700 transition">
-                        Reset
+                        class="text-sm font-semibold text-steel underline underline-offset-4 decoration-line hover:text-ink hover:decoration-ink">
+                        Hapus pencarian
                     </a>
                 @endif
-            </form>
-        </div>
+            </div>
+        </form>
 
-        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="bg-white border border-line rounded border-t-2 border-t-ink">
             <div class="overflow-x-auto">
-                <table class="w-full text-sm text-left">
-                    <thead class="bg-slate-50 text-slate-600 uppercase text-xs">
-                        <tr>
-                            <th class="px-5 py-3">Judul Arsip</th>
-                            <th class="px-5 py-3">Kategori</th>
-                            <th class="px-5 py-3">Deskripsi</th>
-                            <th class="px-5 py-3">Diunggah Oleh</th>
-                            <th class="px-5 py-3">Status</th>
-                            <th class="px-5 py-3">OCR</th>
-                            <th class="px-5 py-3">Tanggal</th>
-                            <th class="px-5 py-3 text-right">Aksi</th>
+                <table class="w-full text-sm text-left min-w-[64rem]">
+                    <thead class="text-steel">
+                        <tr class="border-b border-line">
+                            <th class="px-5 py-4 font-semibold">Judul arsip</th>
+                            <th class="px-5 py-4 font-semibold">Kategori</th>
+                            <th class="px-5 py-4 font-semibold">Deskripsi</th>
+                            <th class="px-5 py-4 font-semibold">Diunggah oleh</th>
+                            <th class="px-5 py-4 font-semibold">Status</th>
+                            <th class="px-5 py-4 font-semibold">OCR</th>
+                            <th class="px-5 py-4 font-semibold">Tanggal</th>
+                            <th class="px-5 py-4 font-semibold text-right">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100">
+                    <tbody class="divide-y divide-line">
                         @forelse ($archives as $archive)
-                            <tr class="hover:bg-slate-50 transition">
-                                <td class="px-5 py-3.5">
-                                    <p class="font-medium text-slate-800">{{ $archive->title }}</p>
-                                </td>
-                                <td class="px-5 py-3.5 text-slate-600">{{ $archive->category ?? '-' }}</td>
-                                <td class="px-5 py-3.5 text-slate-500 max-w-xs">
+                            @php
+                                $statusClass = match ($archive->status) {
+                                    'active' => 'bg-emerald-100 text-emerald-800',
+                                    'archived' => 'bg-manila/40 text-ink',
+                                    default => 'bg-red-100 text-red-800',
+                                };
+                                $statusText = match ($archive->status) {
+                                    'active' => 'Aktif',
+                                    'archived' => 'Diarsipkan',
+                                    default => 'Dihapus',
+                                };
+                            @endphp
+                            <tr class="hover:bg-paper/70 align-top">
+                                <td class="px-5 py-4 font-semibold">{{ $archive->title }}</td>
+                                <td class="px-5 py-4 text-steel">{{ $archive->category ?? '-' }}</td>
+                                <td class="px-5 py-4 text-steel max-w-xs">
                                     <p class="line-clamp-2">{{ $archive->description ?? '-' }}</p>
                                 </td>
-                                <td class="px-5 py-3.5 text-slate-600">{{ $archive->user->name ?? '-' }}</td>
-                                <td class="px-5 py-3.5">
-                                    @php
-                                        $statusColor = match ($archive->status) {
-                                            'active' => 'bg-emerald-50 text-emerald-600',
-                                            'archived' => 'bg-amber-50 text-amber-600',
-                                            default => 'bg-red-50 text-red-600',
-                                        };
-                                    @endphp
-                                    <span class="text-xs font-medium px-2.5 py-1 rounded-full {{ $statusColor }}">
-                                        {{ ucfirst($archive->status) }}
+                                <td class="px-5 py-4 text-steel">{{ $archive->user->name ?? '-' }}</td>
+                                <td class="px-5 py-4">
+                                    <span class="inline-block text-xs font-semibold px-2.5 py-1 rounded-sm {{ $statusClass }}">
+                                        {{ $statusText }}
                                     </span>
                                 </td>
-                                <td class="px-5 py-3.5">
+                                <td class="px-5 py-4">
                                     @include('archives._ocr-badge', ['archive' => $archive])
                                 </td>
-                                <td class="px-5 py-3.5 text-slate-500">{{ $archive->created_at->format('d M Y') }}</td>
-                                <td class="px-5 py-3.5">
-                                    <div class="flex items-center justify-end gap-3 text-slate-400">
+                                <td class="px-5 py-4 text-steel whitespace-nowrap">{{ $archive->created_at->format('d M Y') }}</td>
+                                <td class="px-5 py-4">
+                                    <div class="flex items-center justify-end gap-4 whitespace-nowrap">
                                         @can('show archives')
                                             <a href="{{ route('archives.show', $archive) }}"
-                                                class="hover:text-aris-600 transition" title="Lihat Detail">
-                                                <i class="fa-solid fa-eye"></i>
+                                                class="text-ink font-semibold underline underline-offset-4 decoration-manila decoration-2 hover:decoration-ink">
+                                                Detail
                                             </a>
                                         @endcan
                                         @can('edit archives')
                                             <a href="{{ route('archives.edit', $archive) }}"
-                                                class="hover:text-aris-600 transition" title="Edit">
-                                                <i class="fa-solid fa-pen"></i>
+                                                class="text-steel font-semibold underline underline-offset-4 decoration-line hover:text-ink hover:decoration-ink">
+                                                Ubah
                                             </a>
                                         @endcan
                                         @can('delete archives')
                                             <form action="{{ route('archives.destroy', $archive) }}" method="POST"
-                                                onsubmit="return confirm('Yakin ingin menghapus arsip ini?')">
+                                                onsubmit="return confirm('Hapus arsip ini? Tindakan ini tidak bisa dibatalkan.')">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="hover:text-red-600 transition" title="Hapus">
-                                                    <i class="fa-solid fa-trash"></i>
+                                                <button type="submit"
+                                                    class="text-red-700 font-semibold underline underline-offset-4 decoration-red-200 hover:decoration-red-700">
+                                                    Hapus
                                                 </button>
                                             </form>
                                         @endcan
@@ -123,7 +128,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="8" class="px-5 py-10 text-center text-slate-400">
+                                <td colspan="8" class="px-5 py-12 text-center text-steel">
                                     Belum ada arsip yang tersedia.
                                 </td>
                             </tr>
@@ -133,7 +138,7 @@
             </div>
 
             @if ($archives->hasPages())
-                <div class="px-5 py-4 border-t border-slate-100">
+                <div class="px-5 py-4 border-t border-line">
                     {{ $archives->links() }}
                 </div>
             @endif
