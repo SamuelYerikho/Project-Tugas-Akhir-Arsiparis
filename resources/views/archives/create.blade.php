@@ -45,11 +45,26 @@
                 <div>
                     <label for="file" class="block text-sm font-medium text-slate-700 mb-1.5">Berkas Arsip</label>
                     <input type="file" name="file" id="file"
+                        accept=".pdf,.png,.jpg,.jpeg,.bmp,.tif,.tiff"
                         class="w-full text-sm text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-aris-50 file:text-aris-700 file:text-sm file:font-medium hover:file:bg-aris-100 border border-slate-200 rounded-lg @error('file') border-red-400 @enderror">
                     <p class="text-xs text-slate-400 mt-1.5">Ukuran maksimal 10MB.</p>
                     @error('file')
                         <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
                     @enderror
+
+                    {{-- Catatan OCR --}}
+                    <div class="flex gap-2.5 bg-sky-50 border border-sky-100 rounded-lg px-4 py-3 mt-3">
+                        <i class="fa-solid fa-circle-info text-sky-500 mt-0.5 text-sm"></i>
+                        <div class="text-xs text-sky-800 leading-relaxed">
+                            <p class="font-semibold">Isi dokumen dibaca otomatis (OCR).</p>
+                            <ul class="list-disc pl-4 mt-1 space-y-0.5">
+                                <li>Berlaku untuk PDF dan gambar (PNG, JPG, BMP, TIFF). Format lain tetap tersimpan, tapi isinya tidak dibaca.</li>
+                                <li>Hasil terbaik dari PDF hasil scan, atau foto yang tegak, terang, dan tidak buram.</li>
+                                <li>Akurasi tidak 100%. Kualitas berkas sangat memengaruhi hasil, jadi mungkin ada huruf yang salah baca.</li>
+                                <li>Proses berjalan di latar belakang, status bisa dilihat di daftar arsip.</li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="flex items-center justify-end gap-3 pt-2">

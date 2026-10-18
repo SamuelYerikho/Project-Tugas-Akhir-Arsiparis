@@ -64,6 +64,10 @@
                     <input type="file" name="file" id="file"
                         class="w-full text-sm text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-aris-50 file:text-aris-700 file:text-sm file:font-medium hover:file:bg-aris-100 border border-slate-200 rounded-lg @error('file') border-red-400 @enderror">
                     <p class="text-xs text-slate-400 mt-1.5">Berkas saat ini: {{ $archive->original_filename ?? basename($archive->file_path) }}</p>
+                    <p class="text-xs text-amber-600 mt-1">
+    <i class="fa-solid fa-circle-info"></i>
+    Jika berkas diganti, teks OCR lama dihapus dan OCR dijalankan ulang untuk berkas baru.
+</p>
                     @error('file')
                         <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
                     @enderror

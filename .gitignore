@@ -29,6 +29,8 @@ Thumbs.db
 # --- Docker & Nginx Custom Local Config ---
 compose.yaml
 compose.override.yaml
+docker-compose.yml
+docker-compose.yaml
 Dockerfile
 /nginx/
 /docker/

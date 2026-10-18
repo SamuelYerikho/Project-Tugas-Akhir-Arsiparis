@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    'ocr' => [
+        'url'     => env('OCR_URL', 'http://host.docker.internal:8001'),
+        'timeout' => (int) env('OCR_TIMEOUT', 300),
+    ],
+
 ];

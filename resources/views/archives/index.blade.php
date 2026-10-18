@@ -20,12 +20,23 @@
             @endcan
         </div>
 
+        @if (session('success'))
+            <div class="bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm px-4 py-3 rounded-lg">
+                {{ session('success') }}
+            </div>
+        @endif
+        @if (session('error'))
+            <div class="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-lg">
+                {{ session('error') }}
+            </div>
+        @endif
+
         <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-4">
             <form method="GET" action="{{ route('archives.index') }}" class="flex gap-3">
                 <div class="relative flex-1">
                     <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
                     <input type="text" name="search" value="{{ request('search') }}"
-                        placeholder="Cari judul, kategori, atau deskripsi arsip..."
+                        placeholder="Cari judul, kategori, deskripsi, atau isi dokumen..."
                         class="w-full pl-9 pr-4 py-2.5 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-aris-500 focus:border-aris-500">
                 </div>
                 <button type="submit"
@@ -51,6 +62,7 @@
                             <th class="px-5 py-3">Deskripsi</th>
                             <th class="px-5 py-3">Diunggah Oleh</th>
                             <th class="px-5 py-3">Status</th>
+                            <th class="px-5 py-3">OCR</th>
                             <th class="px-5 py-3">Tanggal</th>
                             <th class="px-5 py-3 text-right">Aksi</th>
                         </tr>
@@ -77,6 +89,9 @@
                                     <span class="text-xs font-medium px-2.5 py-1 rounded-full {{ $statusColor }}">
                                         {{ ucfirst($archive->status) }}
                                     </span>
+                                </td>
+                                <td class="px-5 py-3.5">
+                                    @include('archives._ocr-badge', ['archive' => $archive])
                                 </td>
                                 <td class="px-5 py-3.5 text-slate-500">{{ $archive->created_at->format('d M Y') }}</td>
                                 <td class="px-5 py-3.5">
@@ -108,7 +123,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="px-5 py-10 text-center text-slate-400">
+                                <td colspan="8" class="px-5 py-10 text-center text-slate-400">
                                     Belum ada arsip yang tersedia.
                                 </td>
                             </tr>
@@ -124,4 +139,11 @@
             @endif
         </div>
     </div>
+
+    {{-- Muat ulang otomatis selama masih ada arsip yang menunggu/diproses OCR --}}
+    @if ($archives->contains(fn ($a) => in_array($a->ocr_status, ['pending', 'processing'], true)))
+        <script>
+            setTimeout(() => window.location.reload(), 10000);
+        </script>
+    @endif
 @endsection

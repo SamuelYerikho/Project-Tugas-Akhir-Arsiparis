@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\OcrDocumentJob;
 use App\Models\Archive;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -23,7 +24,7 @@ class ArchiveController extends Controller
     /**
      * Display a listing of the archives.
      */
-   public function index(Request $request): View
+    public function index(Request $request): View
     {
         $query = Archive::query()->with('user')->latest();
 
@@ -35,20 +36,23 @@ class ArchiveController extends Controller
             $query->where(function ($q) use ($userId) {
                 // 1. Arsip miliknya sendiri
                 $q->where('user_id', $userId)
-                  // 2. ATAU arsip yang access request-nya sudah approved
-                  ->orWhereHas('accessRequests', function ($subQuery) use ($userId) {
-                      $subQuery->where('user_id', $userId)
-                               ->where('status', 'approved');
-                  });
+                    // 2. ATAU arsip yang access request-nya sudah approved
+                    ->orWhereHas('accessRequests', function ($subQuery) use ($userId) {
+                        $subQuery->where('user_id', $userId)
+                            ->where('status', 'approved');
+                    });
             });
         }
 
+        // Pencarian juga mencakup isi dokumen hasil OCR.
+        // ilike = tidak peduli huruf besar/kecil (khusus PostgreSQL).
         if ($request->filled('search')) {
             $keyword = $request->input('search');
             $query->where(function ($q) use ($keyword) {
-                $q->where('title', 'like', "%{$keyword}%")
-                    ->orWhere('category', 'like', "%{$keyword}%")
-                    ->orWhere('description', 'like', "%{$keyword}%");
+                $q->where('title', 'ilike', "%{$keyword}%")
+                    ->orWhere('category', 'ilike', "%{$keyword}%")
+                    ->orWhere('description', 'ilike', "%{$keyword}%")
+                    ->orWhere('ocr_text', 'ilike', "%{$keyword}%");
             });
         }
 
@@ -83,18 +87,26 @@ class ArchiveController extends Controller
 
             $file = $request->file('file');
             $path = $file->store('archives', 'public');
+            $ext  = strtolower($file->getClientOriginalExtension());
+            $ocrSupported = in_array($ext, Archive::OCR_EXTENSIONS, true);
 
-            Archive::create([
+            $archive = Archive::create([
                 'user_id'           => $request->user()->id,
                 'title'             => $validated['title'],
                 'category'          => $validated['category'] ?? null,
                 'description'       => $validated['description'] ?? null,
                 'file_path'         => $path,
                 'original_filename' => $file->getClientOriginalName(),
-                'file_type'         => $file->getClientOriginalExtension(),
+                'file_type'         => $ext,
                 'file_size'         => $file->getSize(),
                 'status'            => 'active',
+                'ocr_status'        => $ocrSupported ? 'pending' : 'skipped',
             ]);
+
+            // Dispatch setelah file tersimpan dan record dibuat.
+            if ($ocrSupported) {
+                OcrDocumentJob::dispatch($archive->id, $path);
+            }
 
             return redirect()->route('archives.index')
                 ->with('success', 'Arsip berhasil diunggah.');
@@ -154,17 +166,37 @@ class ArchiveController extends Controller
                 'file.max' => 'Ukuran berkas terlalu besar. Maksimal 10 MB.',
             ]);
 
+            $ocrSupported = false;
+
             if ($request->hasFile('file')) {
                 Storage::disk('public')->delete($archive->file_path);
 
                 $file = $request->file('file');
-                $validated['file_path'] = $file->store('archives', 'public');
+                $ext  = strtolower($file->getClientOriginalExtension());
+                $ocrSupported = in_array($ext, Archive::OCR_EXTENSIONS, true);
+
+                $validated['file_path']         = $file->store('archives', 'public');
                 $validated['original_filename'] = $file->getClientOriginalName();
-                $validated['file_type'] = $file->getClientOriginalExtension();
-                $validated['file_size'] = $file->getSize();
+                $validated['file_type']         = $ext;
+                $validated['file_size']         = $file->getSize();
+
+                // Teks OCR lama sudah tidak berlaku untuk file baru.
+                $validated['ocr_status']  = $ocrSupported ? 'pending' : 'skipped';
+                $validated['ocr_text']    = null;
+                $validated['ocr_error']   = null;
+                $validated['ocr_pages']   = null;
+                $validated['ocr_seconds'] = null;
+                $validated['ocr_at']      = null;
             }
 
+            // 'file' bukan kolom tabel, jangan ikut di-update.
+            unset($validated['file']);
+
             $archive->update($validated);
+
+            if ($ocrSupported) {
+                OcrDocumentJob::dispatch($archive->id, $archive->file_path);
+            }
 
             return redirect()->route('archives.index')
                 ->with('success', 'Arsip berhasil diperbarui.');
@@ -196,6 +228,37 @@ class ArchiveController extends Controller
             return redirect()->route('archives.index')
                 ->with('error', 'Gagal menghapus arsip. Silakan coba lagi.');
         }
+    }
+
+    /**
+     * Proses ulang OCR untuk arsip yang gagal.
+     */
+    public function ocrRetry(Request $request, Archive $archive): RedirectResponse
+    {
+        if ($request->user()->cannot('edit archives') || $request->user()->cannot('view', $archive)) {
+            abort(403);
+        }
+
+        if (! $archive->isOcrSupported()) {
+            return back()->with('error', 'Tipe berkas ini tidak didukung OCR.');
+        }
+
+        if ($archive->ocr_status !== 'failed') {
+            return back()->with('error', 'OCR hanya bisa diulang untuk arsip yang gagal.');
+        }
+
+        $archive->update([
+            'ocr_status'  => 'pending',
+            'ocr_text'    => null,
+            'ocr_error'   => null,
+            'ocr_pages'   => null,
+            'ocr_seconds' => null,
+            'ocr_at'      => null,
+        ]);
+
+        OcrDocumentJob::dispatch($archive->id, $archive->file_path);
+
+        return back()->with('success', 'OCR dijalankan ulang.');
     }
 
     /**

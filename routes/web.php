@@ -77,6 +77,8 @@ Route::middleware('auth')->group(function () {
             Route::put('/{archive}', 'update')->name('update')->middleware('permission:edit archives');
             Route::delete('/{archive}', 'destroy')->name('destroy')->middleware('permission:delete archives');
             Route::get('/{archive}/download', 'download')->name('download')->middleware('permission:download archives');
+            // Proses ulang OCR (hanya untuk arsip yang gagal)
+            Route::post('/{archive}/ocr-retry', 'ocrRetry')->name('ocr-retry')->middleware('permission:edit archives');
         });
 
         // Permintaan Izin Akses Arsip (berdasarkan ID arsip)
@@ -85,14 +87,14 @@ Route::middleware('auth')->group(function () {
             ->middleware('permission:request archive access');
     });
 
-// Manajemen Access Requests
+    // Manajemen Access Requests
     Route::prefix('access-requests')->name('access-requests.')->controller(AccessRequestController::class)->group(function () {
         // Gunakan separator | (OR) agar yang punya akses 'own' ATAU 'all' bisa membuka halamannya
         Route::get('/', 'index')->name('index')->middleware('permission:view own access requests|view all access requests');
         Route::get('/create', 'create')->name('create')->middleware('permission:request archive access');
         Route::post('/', 'store')->name('store')->middleware('permission:request archive access');
         Route::get('/{accessRequest}', 'show')->name('show')->middleware('permission:view own access requests|view all access requests');
-        
+
         Route::put('/{accessRequest}/approve', 'approve')->name('approve')->middleware('permission:approve archive access');
         Route::put('/{accessRequest}/reject', 'reject')->name('reject')->middleware('permission:reject archive access');
         Route::delete('/{accessRequest}', 'destroy')->name('destroy')->middleware('permission:delete archive access request');
