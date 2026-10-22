@@ -38,12 +38,33 @@ class AccessRequestController extends Controller
 
     /**
      * Show the form for submitting a new access request (Staff).
+     *
+     * - Pengguna dengan izin 'view all archives' (termasuk Super Admin lewat
+     *   Gate::before) sudah bisa membuka semua arsip, jadi tidak perlu
+     *   mengajukan akses dan daftar arsip dikosongkan.
+     * - Pengguna lain hanya melihat arsip milik orang lain yang aksesnya
+     *   belum disetujui.
      */
     public function create(Request $request): View
     {
-        $archives = Archive::query()->orderBy('title')->get(['id', 'title']);
+        $user = $request->user();
+        $hasFullAccess = $user->can('view all archives');
 
-        return view('access-requests.create', compact('archives'));
+        if ($hasFullAccess) {
+            $archives = collect();
+        } else {
+            $archives = Archive::query()
+                ->where('user_id', '!=', $user->id) // bukan arsip miliknya sendiri
+                ->whereDoesntHave('accessRequests', function ($q) use ($user) {
+                    // sudah approved = sudah punya akses, tidak perlu diajukan lagi
+                    $q->where('user_id', $user->id)
+                        ->where('status', 'approved');
+                })
+                ->orderBy('title')
+                ->get(['id', 'title']);
+        }
+
+        return view('access-requests.create', compact('archives', 'hasFullAccess'));
     }
 
     /**
@@ -52,6 +73,12 @@ class AccessRequestController extends Controller
     public function store(Request $request, ?Archive $archive = null): RedirectResponse
     {
         try {
+            // Pemilik izin 'view all archives' sudah bisa membuka semua arsip.
+            if ($request->user()->can('view all archives')) {
+                return redirect()->back()
+                    ->with('error', 'Kamu sudah memiliki akses ke semua arsip, jadi tidak perlu mengajukan izin akses.');
+            }
+
             $isDirectRequest = $archive !== null;
 
             $rules = [
@@ -66,6 +93,24 @@ class AccessRequestController extends Controller
 
             if (! $isDirectRequest) {
                 $archive = Archive::findOrFail($request->input('archive_id'));
+            }
+
+            // Pemilik arsip tidak perlu mengajukan akses ke arsipnya sendiri.
+            if ($archive->user_id === $request->user()->id) {
+                return redirect()->back()
+                    ->with('error', 'Kamu tidak perlu meminta akses ke arsip yang kamu unggah sendiri.');
+            }
+
+            // Sudah punya akses (approved), tidak perlu mengajukan lagi.
+            $alreadyApproved = AccessRequest::query()
+                ->where('archive_id', $archive->id)
+                ->where('user_id', $request->user()->id)
+                ->where('status', 'approved')
+                ->exists();
+
+            if ($alreadyApproved) {
+                return redirect()->back()
+                    ->with('error', 'Kamu sudah memiliki akses ke arsip ini.');
             }
 
             $alreadyRequested = AccessRequest::query()

@@ -20,6 +20,7 @@
 
             // Arsip
             'view archives' => 'Lihat daftar arsip',
+            'view all archives' => 'Lihat semua arsip',
             'upload archives' => 'Unggah arsip baru',
             'show archives' => 'Lihat detail arsip',
             'edit archives' => 'Ubah data arsip',
@@ -30,6 +31,9 @@
             'request archive access' => 'Ajukan permintaan akses arsip',
             'approve archive access' => 'Setujui permintaan akses',
             'reject archive access' => 'Tolak permintaan akses',
+            'view all access requests' => 'Lihat semua permintaan akses',
+            'view own access requests' => 'Lihat permintaan akses milik sendiri',
+            'delete archive access request' => 'Hapus permintaan akses arsip',
 
             // Laporan
             'view reports' => 'Lihat halaman laporan',

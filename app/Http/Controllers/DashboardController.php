@@ -14,9 +14,6 @@ class DashboardController extends Controller
     {
         $user = $request->user();
 
-        // Aturan visibilitas sama persis dengan ArchiveController@index:
-        // yang tidak punya 'view all archives' hanya melihat arsip miliknya
-        // atau arsip yang access request-nya sudah approved.
         $archiveQuery = fn () => Archive::query()
             ->when($user->cannot('view all archives'), function ($q) use ($user) {
                 $q->where(function ($q) use ($user) {
@@ -35,7 +32,12 @@ class DashboardController extends Controller
             'users'      => User::count(),
         ];
 
-        $recentArchives = $archiveQuery()->with('user')->latest()->take(5)->get();
+        // Semua arsip tampil lewat pagination, 5 data per halaman
+        $recentArchives = $archiveQuery()
+            ->with('user')
+            ->latest()
+            ->paginate(2, ['*'], 'page')
+            ->withQueryString();
 
         return view('dashboard.index', compact('stats', 'recentArchives'));
     }

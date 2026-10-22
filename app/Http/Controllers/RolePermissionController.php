@@ -37,11 +37,10 @@ class RolePermissionController extends Controller
 
     /**
      * Kelompokkan permission ke dalam modul-modul yang mudah dibaca Admin.
-     * Permission yang belum masuk mapping akan otomatis jatuh ke grup "Lainnya".
+     * Permission yang belum masuk mapping akan otomatis jatuh ke grup "Fitur Lainnya".
      */
     private function groupPermissions(Collection $permissions): array
     {
-        // PERBAIKAN: Masukkan SEMUA permission yang Anda gunakan di route ke sini
         $moduleMap = [
             'Manajemen Role' => [
                 'view roles',
@@ -59,6 +58,7 @@ class RolePermissionController extends Controller
             ],
             'Manajemen Arsip' => [
                 'view archives',
+                'view all archives',
                 'upload archives',
                 'show archives',
                 'edit archives',
@@ -69,6 +69,9 @@ class RolePermissionController extends Controller
                 'request archive access',
                 'approve archive access',
                 'reject archive access',
+                'view all access requests',
+                'view own access requests',
+                'delete archive access request',
             ],
             'Laporan' => [
                 'view reports',
@@ -92,7 +95,7 @@ class RolePermissionController extends Controller
         $others = $permissions->reject(fn ($permission) => $mappedNames->contains($permission->name))->values();
 
         if ($others->isNotEmpty()) {
-            $grouped['Fitur Lainnya'] = $others; // Ubah teks menjadi lebih ramah
+            $grouped['Fitur Lainnya'] = $others;
         }
 
         return $grouped;
