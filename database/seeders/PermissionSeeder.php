@@ -29,6 +29,9 @@ class PermissionSeeder extends Seeder
             'delete users',
             'reset user password',
 
+            // Pengaturan Akun
+            'edit account identity', // izin ubah username & email di halaman pengaturan akun
+
             // Manajemen Role
             'view roles',
             'create roles',
@@ -42,8 +45,8 @@ class PermissionSeeder extends Seeder
             'download reports',
 
             // Akses Arsip
-            'view own access requests', 
-            'view all access requests', 
+            'view own access requests',
+            'view all access requests',
             'request archive access',
             'approve archive access',
             'reject archive access',

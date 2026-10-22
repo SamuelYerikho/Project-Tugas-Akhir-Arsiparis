@@ -56,6 +56,9 @@ class RolePermissionController extends Controller
                 'delete users',
                 'reset user password',
             ],
+            'Pengaturan Akun' => [
+                'edit account identity',
+            ],
             'Manajemen Arsip' => [
                 'view archives',
                 'view all archives',

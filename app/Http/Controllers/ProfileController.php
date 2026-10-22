@@ -6,6 +6,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\View\View;
 
@@ -18,20 +19,46 @@ class ProfileController extends Controller
     {
         return view('profile.edit', [
             'user' => auth()->user(),
+            'canEditIdentity' => auth()->user()->can('edit account identity'),
         ]);
     }
 
     /**
-     * Update data profil (hanya nama & foto — username & email readonly).
+     * Update data profil.
+     * Nama & foto bisa diubah semua user. Username & email hanya bisa
+     * diubah oleh user yang punya permission 'edit account identity'
+     * (Super Admin otomatis lolos lewat Gate::before).
      */
     public function update(Request $request): RedirectResponse
     {
         $user = $request->user();
 
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
+        $canEditIdentity = $user->can('edit account identity');
+
+        $rules = [
+            'name'    => ['required', 'string', 'max:255'],
             'profile' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
-        ]);
+        ];
+
+        if ($canEditIdentity) {
+            $rules['username'] = [
+                'required',
+                'string',
+                'max:255',
+                'alpha_dash',
+                Rule::unique('users', 'username')->ignore($user->id),
+            ];
+            $rules['email'] = [
+                'required',
+                'email',
+                'max:255',
+                Rule::unique('users', 'email')->ignore($user->id),
+            ];
+        }
+
+        // validate() hanya mengembalikan field yang ada di $rules,
+        // jadi username/email dari user tanpa izin otomatis diabaikan.
+        $validated = $request->validate($rules);
 
         if ($request->hasFile('profile')) {
             // Hapus foto lama kalau ada
