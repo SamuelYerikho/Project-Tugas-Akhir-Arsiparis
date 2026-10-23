@@ -74,10 +74,9 @@
         .folder-tab { clip-path: polygon(0 0, 78% 0, 88% 100%, 0 100%); }
         a:focus-visible, button:focus-visible { outline: 3px solid #E2B84B; outline-offset: 3px; }
 
-        /* ============ BINTANG BERKELAP-KELIP (MODE GELAP) ============ */
-        /* Lapisan bintang fixed di belakang konten. Hanya tampil di mode gelap.
-           Tiga lapisan dengan offset & durasi animasi berbeda menghasilkan efek twinkle.
-           Panel kiri (bg-invert, opak) otomatis menutupi bintang. */
+        /* ============ LATAR ASTROFIL 3D (MODE GELAP) ============ */
+        /* Panel kiri (bg-invert, opak) menutupinya, jadi astrofil hanya terlihat
+           di area form (kanan). Hanya tampil di mode gelap. */
         .star-field {
             display: none;
             position: fixed;
@@ -85,34 +84,240 @@
             z-index: -1;
             pointer-events: none;
             overflow: hidden;
+            perspective: 1400px;
+            perspective-origin: 50% 40%;
             background-color: rgb(var(--c-paper));
-            background-image: radial-gradient(1000px 400px at 78% 0%, rgb(var(--c-invert) / 0.45), transparent 70%);
+            background-image:
+                radial-gradient(1200px 700px at 72% -12%, rgba(76, 29, 149, 0.30), transparent 65%),
+                radial-gradient(900px  550px at  4%  92%, rgba(14, 116, 144, 0.18), transparent 65%),
+                radial-gradient(700px  450px at 96%  78%, rgba(190, 60,  80, 0.14), transparent 65%);
             background-repeat: no-repeat;
         }
         .dark .star-field { display: block; }
 
-        .star-layer {
+        /* ---- NEBULA (paling belakang, blur berat = jauh) ---- */
+        .nebula {
             position: absolute;
-            inset: -240px;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240' viewBox='0 0 240 240'%3E%3Cpath d='M40 50l2.5 7.5 7.5 2.5-7.5 2.5-2.5 7.5-2.5-7.5-7.5-2.5 7.5-2.5z' fill='%23E2B84B' fill-opacity='0.9'/%3E%3Cpath d='M180 100l2 6 6 2-6 2-2 6-2-6-6-2 6-2z' fill='%234DD0E1' fill-opacity='0.85'/%3E%3Cpath d='M90 180l2 6 6 2-6 2-2 6-2-6-6-2 6-2z' fill='%23F48FB1' fill-opacity='0.85'/%3E%3Cpath d='M200 200l1.5 4.5 4.5 1.5-4.5 1.5-1.5 4.5-1.5-4.5-4.5-1.5 4.5-1.5z' fill='%23B39DDB' fill-opacity='0.85'/%3E%3Cpath d='M120 40l1.5 4.5 4.5 1.5-4.5 1.5-1.5 4.5-1.5-4.5-4.5-1.5 4.5-1.5z' fill='%2380CBC4' fill-opacity='0.9'/%3E%3Cpath d='M30 140l1.8 5.4 5.4 1.8-5.4 1.8-1.8 5.4-1.8-5.4-5.4-1.8 5.4-1.8z' fill='%23FFB74D' fill-opacity='0.8'/%3E%3Cpath d='M150 90l1.2 3.6 3.6 1.2-3.6 1.2-1.2 3.6-1.2-3.6-3.6-1.2 3.6-1.2z' fill='%2364B5F6' fill-opacity='0.8'/%3E%3Ccircle cx='150' cy='30' r='1.2' fill='%23CE93D8' fill-opacity='0.95'/%3E%3Ccircle cx='60' cy='120' r='1' fill='%23E9F1F6' fill-opacity='0.85'/%3E%3Ccircle cx='200' cy='150' r='1' fill='%23CE93D8' fill-opacity='0.9'/%3E%3Ccircle cx='20' cy='200' r='0.9' fill='%2380CBC4' fill-opacity='0.9'/%3E%3Ccircle cx='130' cy='150' r='1.1' fill='%23F48FB1' fill-opacity='0.9'/%3E%3Ccircle cx='220' cy='60' r='0.8' fill='%23E9F1F6' fill-opacity='0.8'/%3E%3Ccircle cx='80' cy='20' r='0.9' fill='%234DD0E1' fill-opacity='0.9'/%3E%3Ccircle cx='170' cy='170' r='0.9' fill='%23FFB74D' fill-opacity='0.85'/%3E%3C/svg%3E");
-            background-size: 240px 240px;
-            background-repeat: repeat;
+            border-radius: 50%;
+            filter: blur(90px);
+            will-change: transform;
+        }
+        .nebula-1 {
+            width: 560px; height: 560px;
+            top: -12%; left: 28%;
+            background: radial-gradient(circle, rgba(76, 29, 149, 0.80), transparent 70%);
+            opacity: 0.38;
+            animation: drift-a 90s ease-in-out infinite;
+        }
+        .nebula-2 {
+            width: 460px; height: 460px;
+            bottom: -8%; left: -6%;
+            background: radial-gradient(circle, rgba(14, 116, 144, 0.60), transparent 70%);
+            opacity: 0.34;
+            animation: drift-b 115s ease-in-out infinite;
+        }
+        .nebula-3 {
+            width: 400px; height: 400px;
+            top: 32%; right: -10%;
+            background: radial-gradient(circle, rgba(190, 60, 80, 0.50), transparent 70%);
+            opacity: 0.30;
+            animation: drift-c 100s ease-in-out infinite;
+        }
+
+        /* ---- PLANET: shading berlapis + rim light ---- */
+        .planet {
+            position: absolute;
+            border-radius: 50%;
+            will-change: transform;
+            transform-style: preserve-3d;
+        }
+
+        /* Planet biru besar (kanan atas area form) — gas giant */
+        .planet-1 {
+            width: 220px; height: 220px;
+            top: 8%; right: 5%;
+            background:
+                radial-gradient(circle at 30% 26%,
+                    #7fb3e0 0%,
+                    #4a7fb5 20%,
+                    #1e4a72 48%,
+                    #0e2a45 76%,
+                    #05121f 100%);
+            box-shadow:
+                inset -35px -25px 65px rgba(0, 0, 0, 0.80),
+                inset  14px  14px 28px rgba(160, 210, 255, 0.16),
+                inset 0 0 55px rgba(0, 0, 0, 0.45),
+                0 0 80px  rgba(74, 127, 181, 0.30),
+                0 0 220px rgba(74, 127, 181, 0.10);
+            opacity: 0.72;
+            animation: drift-a 70s ease-in-out infinite;
+        }
+        .planet-1::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            background: conic-gradient(
+                from 45deg,
+                transparent 0deg,
+                rgba(0, 0, 0, 0.20) 70deg,
+                transparent 150deg,
+                rgba(160, 210, 255, 0.10) 220deg,
+                transparent 300deg,
+                rgba(0, 0, 0, 0.18) 360deg);
+            mix-blend-mode: soft-light;
+            animation: spin 160s linear infinite;
+            pointer-events: none;
+        }
+        .planet-1::after {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%,
+                transparent 62%,
+                rgba(130, 190, 240, 0.28) 90%,
+                transparent 100%);
+            pointer-events: none;
+        }
+
+        /* Planet hangat bercincin (kiri bawah — terutama terlihat di mobile) */
+        .planet-2 {
+            width: 122px; height: 122px;
+            bottom: 10%; left: 6%;
+            background:
+                radial-gradient(circle at 32% 28%,
+                    #f5c78a 0%,
+                    #d99a5e 20%,
+                    #a15a2a 52%,
+                    #5c2a10 82%,
+                    #2a1004 100%);
+            box-shadow:
+                inset -20px -20px 36px rgba(0, 0, 0, 0.72),
+                inset   8px   8px 16px rgba(255, 220, 180, 0.16),
+                0 0 60px  rgba(217, 154, 94, 0.30),
+                0 0 140px rgba(217, 154, 94, 0.10);
+            opacity: 0.78;
+            animation: drift-b 90s ease-in-out infinite;
+        }
+        .planet-2::after {
+            content: '';
+            position: absolute;
+            inset: -30px -48px;
+            border-radius: 50%;
+            border: 2px solid rgba(217, 154, 94, 0.50);
+            border-bottom-color: transparent;
+            transform: rotateX(74deg) rotate(-14deg);
+            box-shadow:
+                0 0 26px rgba(217, 154, 94, 0.28),
+                inset 0 0 16px rgba(217, 154, 94, 0.16);
+            pointer-events: none;
+        }
+
+        /* Bulan pucat kecil (kanan tengah area form) */
+        .planet-3 {
+            width: 46px; height: 46px;
+            top: 44%; right: 20%;
+            background:
+                radial-gradient(circle at 30% 30%,
+                    #f0f5f9 0%,
+                    #b5c4d0 42%,
+                    #7a8fa1 72%,
+                    #4e6579 100%);
+            box-shadow:
+                inset -7px -7px 14px rgba(0, 0, 0, 0.60),
+                inset  3px  3px  6px rgba(255, 255, 255, 0.20),
+                0 0 25px rgba(216, 228, 236, 0.32);
+            opacity: 0.88;
+            animation: drift-c 50s ease-in-out infinite;
+        }
+
+        /* ---- DUST / debu foreground (paling dekat, tajam) ---- */
+        .dust {
+            position: absolute;
+            width: 3px; height: 3px;
+            border-radius: 50%;
+            background: rgba(233, 241, 246, 0.75);
+            box-shadow: 0 0 6px rgba(233, 241, 246, 0.55);
+            will-change: transform;
+        }
+        .dust-1 { top: 20%; left: 54%; animation: float-a 26s ease-in-out infinite; }
+        .dust-2 { top: 62%; left: 88%; width: 2px; height: 2px; animation: float-b 34s ease-in-out infinite; }
+        .dust-3 { top: 76%; left: 62%; animation: float-c 30s ease-in-out infinite; }
+        .dust-4 { top: 34%; left: 78%; width: 2px; height: 2px; animation: float-a 40s ease-in-out infinite; }
+
+        /* ---- Gerakan ---- */
+        @keyframes drift-a {
+            0%, 100% { transform: translate(var(--px, 0px), var(--py, 0px)); }
+            50%      { transform: translate(calc(var(--px, 0px) - 14px), calc(var(--py, 0px) + 10px)); }
+        }
+        @keyframes drift-b {
+            0%, 100% { transform: translate(var(--px, 0px), var(--py, 0px)); }
+            50%      { transform: translate(calc(var(--px, 0px) + 10px), calc(var(--py, 0px) - 8px)); }
+        }
+        @keyframes drift-c {
+            0%, 100% { transform: translate(var(--px, 0px), var(--py, 0px)); }
+            50%      { transform: translate(calc(var(--px, 0px) - 6px),  calc(var(--py, 0px) + 6px)); }
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to   { transform: rotate(360deg); }
+        }
+        @keyframes float-a {
+            0%, 100% { transform: translate(0, 0);        opacity: 0.35; }
+            50%      { transform: translate(22px, -16px); opacity: 0.85; }
+        }
+        @keyframes float-b {
+            0%, 100% { transform: translate(0, 0);        opacity: 0.50; }
+            50%      { transform: translate(-16px, 22px); opacity: 0.90; }
+        }
+        @keyframes float-c {
+            0%, 100% { transform: translate(0, 0);        opacity: 0.30; }
+            50%      { transform: translate(14px, -12px); opacity: 0.75; }
+        }
+
+        /* ============ BINTANG JATUH ============ */
+        .shooting-star {
+            position: absolute;
+            width: 160px;
+            height: 1.5px;
+            border-radius: 999px;
+            background: linear-gradient(90deg,
+                rgba(226, 184,  75, 0.00)  0%,
+                rgba(226, 184,  75, 0.65) 55%,
+                rgba(233, 241, 246, 0.95) 100%);
+            filter: drop-shadow(0 0 6px rgba(226, 184, 75, 0.55));
             opacity: 0;
-            animation: twinkle ease-in-out infinite;
-            will-change: opacity;
+            will-change: transform, opacity;
         }
-        .star-layer-1 { background-position:    0px   0px; animation-duration: 3.2s; animation-delay: 0s;   }
-        .star-layer-2 { background-position:  120px  60px; animation-duration: 4.6s; animation-delay: 1.1s; }
-        .star-layer-3 { background-position:   40px 180px; animation-duration: 5.8s; animation-delay: 2.3s; }
+        .shoot-1 { top: -6%; left: 54%; animation: shoot 14s linear infinite; }
+        .shoot-2 { top: -6%; left: 70%; animation: shoot 18s linear infinite; animation-delay: 6s; }
+        .shoot-3 { top: -6%; left: 84%; animation: shoot 22s linear infinite; animation-delay: 13s; }
 
-        @@keyframes twinkle {
-            0%, 100% { opacity: 0.12; }
-            45%      { opacity: 1; }
-            60%      { opacity: 0.85; }
+        @keyframes shoot {
+            0%   { transform: translate3d(0, 0, 0) rotate(22deg);       opacity: 0; }
+            4%   {                                                       opacity: 1; }
+            15%  {                                                       opacity: 0.9; }
+            22%  { transform: translate3d(40vw, 45vh, 0) rotate(22deg);  opacity: 0; }
+            100% { transform: translate3d(40vw, 45vh, 0) rotate(22deg);  opacity: 0; }
         }
 
-        @@media (prefers-reduced-motion: reduce) {
-            .star-layer { animation: none; opacity: 0.55; }
+        /* Planet & bintang jatuh di layar kecil */
+        @media (max-width: 640px) {
+            .planet-1 { width: 140px; height: 140px; opacity: 0.55; }
+            .planet-2 { width:  84px; height:  84px; opacity: 0.62; }
+            .planet-3 { width:  34px; height:  34px; }
+            .shooting-star { width: 120px; }
+            .nebula    { filter: blur(60px); }
+            /* di mobile seluruh layar terbuka, geser planet agar tidak menabrak form */
+            .planet-1 { top: 4%; right: 4%; }
+            .planet-2 { bottom: 6%; left: 4%; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .shooting-star { animation: none; opacity: 0; }
+            .planet, .nebula, .dust,
+            .planet-1::before, .planet-2::after { animation: none; }
         }
     </style>
 
@@ -121,13 +326,28 @@
 </head>
 <body class="font-sans antialiased text-ink bg-paper transition-colors duration-300">
 
-    {{-- ================= BINTANG BERKELAP-KELIP (MODE GELAP) ================= --}}
-    {{-- Fixed di belakang konten; panel kiri (bg-invert) menutupinya, jadi bintang
-         hanya terlihat di area form (kanan). --}}
+    {{-- ================= LATAR ASTROFIL 3D (MODE GELAP) ================= --}}
     <div class="star-field" aria-hidden="true">
-        <div class="star-layer star-layer-1"></div>
-        <div class="star-layer star-layer-2"></div>
-        <div class="star-layer star-layer-3"></div>
+        <!-- Nebula belakang (paling jauh) -->
+        <div class="nebula nebula-1"></div>
+        <div class="nebula nebula-2"></div>
+        <div class="nebula nebula-3"></div>
+
+        <!-- Planet (mid ground) -->
+        <div class="planet planet-1"></div>
+        <div class="planet planet-2"></div>
+        <div class="planet planet-3"></div>
+
+        <!-- Debu foreground -->
+        <div class="dust dust-1"></div>
+        <div class="dust dust-2"></div>
+        <div class="dust dust-3"></div>
+        <div class="dust dust-4"></div>
+
+        <!-- Bintang jatuh -->
+        <div class="shooting-star shoot-1"></div>
+        <div class="shooting-star shoot-2"></div>
+        <div class="shooting-star shoot-3"></div>
     </div>
 
     <div class="flex min-h-screen">
@@ -164,7 +384,7 @@
 
         </div>
 
-        {{-- ================= KANAN: Form Login (transparan, bintang tembus) ================= --}}
+        {{-- ================= KANAN: Form Login (transparan, astrofil tembus) ================= --}}
         <div class="w-full lg:w-7/12 flex flex-col justify-center px-8 sm:px-16 xl:px-28 relative transition-colors duration-300">
 
             <div class="absolute top-8 left-8 sm:left-16 xl:left-28 right-8 sm:right-16 xl:right-28 flex items-center justify-between">
@@ -297,6 +517,43 @@
                 color:      dark ? '#E9F1F6' : '#10283A'
             };
         }
+
+        /* ---- Parallax mouse untuk latar astrophile 3D ---- */
+        (function () {
+            var field = document.querySelector('.star-field');
+            if (!field) return;
+            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+            var layers = [
+                { els: field.querySelectorAll('.nebula'),   depth: 0.4 },
+                { els: field.querySelectorAll('.planet-1'), depth: 1.4 },
+                { els: field.querySelectorAll('.planet-2'), depth: 1.0 },
+                { els: field.querySelectorAll('.planet-3'), depth: 1.8 },
+                { els: field.querySelectorAll('.dust'),     depth: 2.6 }
+            ];
+
+            var mx = 0, my = 0, cx = 0, cy = 0;
+
+            function onMove(e) {
+                mx = (e.clientX / window.innerWidth  - 0.5) * 2;
+                my = (e.clientY / window.innerHeight - 0.5) * 2;
+            }
+            window.addEventListener('mousemove', onMove, { passive: true });
+
+            (function tick() {
+                cx += (mx - cx) * 0.06;
+                cy += (my - cy) * 0.06;
+                layers.forEach(function (g) {
+                    var x = (-cx * 14 * g.depth).toFixed(2) + 'px';
+                    var y = (-cy * 14 * g.depth).toFixed(2) + 'px';
+                    g.els.forEach(function (el) {
+                        el.style.setProperty('--px', x);
+                        el.style.setProperty('--py', y);
+                    });
+                });
+                requestAnimationFrame(tick);
+            })();
+        })();
     </script>
 
     {{-- Notifikasi flash message via SweetAlert2 (mis. pesan setelah logout) --}}
