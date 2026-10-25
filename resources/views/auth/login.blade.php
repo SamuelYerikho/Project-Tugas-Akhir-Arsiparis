@@ -56,8 +56,10 @@
             --c-line:        201 212 217;
             --c-manila:      226 184  75;
             --c-on-manila:    16  40  58;
-            --c-invert:       16  40  58;
-            --c-on-invert:   255 255 255;
+
+            /* Panel branding mode terang: PUTIH */
+            --c-invert:      255 255 255;
+            --c-on-invert:    16  40  58;
         }
         .dark {
             --c-paper:        10  24  38;
@@ -73,6 +75,17 @@
 
         .folder-tab { clip-path: polygon(0 0, 78% 0, 88% 100%, 0 100%); }
         a:focus-visible, button:focus-visible { outline: 3px solid #E2B84B; outline-offset: 3px; }
+
+        /* ============ POLES MODE TERANG (PANEL PUTIH) ============ */
+        /* Sentuhan aksen manila sangat halus di pojok kanan atas */
+        html:not(.dark) .brand-panel {
+            background-image:
+                radial-gradient(900px 500px at 100% 0%, rgba(226, 184, 75, 0.08), transparent 60%);
+            border-right: 1px solid rgb(var(--c-line));
+            box-shadow: 2px 0 24px -8px rgba(16, 40, 58, 0.08);
+        }
+        /* Lapisan belakang tumpukan map tetap terlihat di atas putih */
+        html:not(.dark) .folder-back { background-color: rgb(var(--c-on-invert) / 0.10); }
 
         /* ============ LATAR ASTROFIL 3D (MODE GELAP) ============ */
         /* Panel kiri (bg-invert, opak) menutupinya, jadi astrofil hanya terlihat
@@ -353,7 +366,7 @@
     <div class="flex min-h-screen">
 
         {{-- ================= KIRI: Branding (selaras dengan home) ================= --}}
-        <div class="hidden lg:flex lg:w-5/12 relative bg-invert text-on-invert flex-col justify-between overflow-hidden px-14 xl:px-20 py-14">
+        <div class="hidden lg:flex lg:w-5/12 relative brand-panel bg-invert text-on-invert flex-col justify-between overflow-hidden px-14 xl:px-20 py-14">
 
             <div class="flex items-end gap-3">
                 <span class="folder-tab bg-manila text-on-manila font-display font-extrabold text-base pl-4 pr-8 py-2">RRI</span>
@@ -369,8 +382,8 @@
 
                 {{-- Ilustrasi tumpukan map arsip (tanpa teks) --}}
                 <div class="relative mt-12 h-40 max-w-sm" aria-hidden="true">
-                    <div class="absolute bottom-0 left-0 w-full h-28 bg-on-invert/10 rounded-sm"></div>
-                    <div class="absolute bottom-0 left-0 h-6 w-24 bg-on-invert/10 folder-tab -translate-y-[6.5rem]"></div>
+                    <div class="folder-back absolute bottom-0 left-0 w-full h-28 rounded-sm"></div>
+                    <div class="folder-back absolute bottom-0 left-0 h-6 w-24 folder-tab -translate-y-[6.5rem]"></div>
                     <div class="absolute bottom-0 left-6 w-[calc(100%-1.5rem)] h-24 bg-steel/60 rounded-sm"></div>
                     <div class="absolute bottom-0 left-6 h-6 w-24 bg-steel/60 folder-tab -translate-y-[5.5rem] translate-x-28"></div>
                     <div class="absolute bottom-0 left-12 w-[calc(100%-3rem)] h-20 bg-manila rounded-sm"></div>

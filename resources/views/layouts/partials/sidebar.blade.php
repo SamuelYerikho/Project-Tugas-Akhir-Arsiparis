@@ -4,6 +4,9 @@
     seperti tab map, item aktif dengan bilah manila solid, plus tombol Keluar.
     Menu aktif dicek dengan request()->routeIs('nama.route').
     Menu disembunyikan otomatis via @can() sesuai permission Spatie.
+
+    Catatan: di mode terang warna panel mengikuti token --c-invert (putih),
+    otomatis menyesuaikan seperti panel branding halaman login.
 --}}
 @php
     // Item menu: border kiri 4px selalu ada (transparan kalau tidak aktif) supaya

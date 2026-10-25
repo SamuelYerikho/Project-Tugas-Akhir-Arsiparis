@@ -69,8 +69,11 @@
             --c-line:        201 212 217;
             --c-manila:      226 184  75;
             --c-on-manila:    16  40  58;
-            --c-invert:       16  40  58;
-            --c-on-invert:   255 255 255;
+
+            /* Panel sidebar mode terang: PUTIH selaras halaman login */
+            --c-invert:      255 255 255;
+            --c-on-invert:    16  40  58;
+
             --c-shadow:       16  40  58;
         }
         .dark {
@@ -90,6 +93,18 @@
         .folder-tab { clip-path: polygon(0 0, 78% 0, 88% 100%, 0 100%); }
         .sticker-shadow-sm { box-shadow: 4px 4px 0 rgb(var(--c-shadow)); }
         a:focus-visible, button:focus-visible { outline: 3px solid #E2B84B; outline-offset: 2px; }
+
+        /* ============ POLES SIDEBAR MODE TERANG ============ */
+        /* Putih murni di sebelah bg-paper (abu kebiruan) perlu garis batas + bayangan
+           lembut agar tidak "lumer". Selaras dengan panel branding halaman login. */
+        html:not(.dark) aside.bg-invert {
+            border-right: 1px solid rgb(var(--c-line));
+            box-shadow: 2px 0 24px -8px rgba(16, 40, 58, 0.08);
+        }
+        /* Pertegas pemisah internal (garis logo, seksi Admin, kartu user) di mode terang */
+        html:not(.dark) aside.bg-invert .border-on-invert\/10 {
+            border-color: rgb(var(--c-line));
+        }
 
         /* ============ LATAR ASTROFIL 3D — TATA SURYA (MODE GELAP) ============ */
         /* Panel, sidebar, navbar, dan kartu solid menutupi sebagian besar layar,
